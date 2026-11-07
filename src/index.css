@@ -6,3 +6,62 @@
 .reader-actions{display:flex;align-items:center;gap:7px}.reader-actions .soft-btn{padding:9px 10px;font-size:11px;white-space:nowrap}.soft-btn.compare-on{background:var(--surface2);border-color:#d7b99c;color:var(--accent)}.verse-texts{flex:1;min-width:0}.verse-texts p{margin:0;line-height:1.9;overflow-wrap:anywhere}.verse-texts .verse-secondary{margin-top:7px;padding-top:7px;border-top:1px solid var(--line);color:var(--muted)}.verse-comparison{padding-top:14px;padding-bottom:14px}.verse-comparison .verse-num{padding-top:3px}@media(max-width:390px){.reader-actions{gap:5px}.reader-actions .soft-btn{padding:8px 7px;font-size:10px}.reader-heading{gap:8px}.reader h1{font-size:24px}}
 
 .version-selectors{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 13px}.version-picker{display:flex;flex-direction:column;gap:6px;min-width:0}.version-picker span{font-size:11px;color:var(--muted);font-weight:600}.version-picker select{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);padding:11px 9px;font:inherit;font-size:12px;outline-color:var(--accent)}@media(max-width:390px){.version-selectors{gap:6px}.version-picker select{font-size:10px;padding:10px 6px}}
+
+
+/* Bible reader visual refresh: classic parallel-reading layout */
+.app{--bg:#fff;--surface:#fff;--surface2:#f2f3f5;--text:#303236;--muted:#697b9d;--accent:#1647a8;--line:#e5e7eb;background:#fff;color:#303236;padding-bottom:116px}
+.reader-topbar{height:132px;max-width:none;width:100%;padding:34px 22px 15px;background:linear-gradient(115deg,#777 0%,#686868 100%);color:#fff;align-items:flex-end;gap:12px;box-shadow:0 2px 0 #d9e2f0}
+.topbar-title{display:flex;flex-direction:column;gap:9px;min-width:0;flex:1}
+.topbar-title>strong{font-size:clamp(23px,5vw,34px);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.topbar-version{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.topbar-version select{max-width:100%;border:0;border-radius:6px;background:#294a79;color:white;padding:7px 12px;font:inherit;font-size:12px;outline:none}
+.top-actions{gap:8px;flex-shrink:0}
+.reader-topbar .icon-btn{color:#fff;width:42px;height:42px}
+.reader-topbar .icon-btn svg{width:27px;height:27px;stroke-width:1.7}
+.more-dots{font-size:32px;line-height:1}
+.reader{max-width:900px;margin:0 auto;padding:0 18px}
+.reader-heading-hidden,.version-selectors,.selector-row{display:none!important}
+.scripture-card{border:0;border-radius:0;box-shadow:none;padding:30px 0 20px;background:#fff}
+.scripture-meta{display:none}
+.verse{gap:10px;padding:13px 0;margin:0;border-radius:0;align-items:flex-start}
+.verse.highlighted{background:#fff5d8}
+.verse-num{font-size:17px;color:#303236;min-width:24px;padding-top:5px}
+.verse-texts p{font-size:clamp(21px,5.3vw,27px)!important;line-height:1.85!important;color:#33363a;font-weight:400}
+.verse-texts .verse-secondary{margin-top:23px;padding:0;border:0;color:#6d7fa4;font-size:clamp(19px,4.8vw,24px)!important;line-height:2.05!important}
+.verse-comparison{padding:16px 0 24px}
+.verse-comparison .verse-num{padding-top:7px}
+.verse-bookmark{color:#1c83d8}
+.sample-notice{border-radius:0;background:#f4f5f7;color:#68758c;font-size:12px}
+.floating-reader-tools{position:fixed;right:14px;bottom:105px;left:14px;display:flex;justify-content:flex-end;align-items:center;gap:10px;z-index:6;pointer-events:none}
+.floating-reader-tools button{pointer-events:auto;width:76px;height:76px;border-radius:50%;border:5px solid #e9edf2;background:#0d9fbd;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;box-shadow:0 2px 5px #0002;font:inherit}
+.floating-reader-tools button:nth-child(1){margin-right:auto;background:#d02e68;border-color:#f0b2c5}
+.floating-reader-tools button:nth-child(2){background:#168da5}
+.floating-reader-tools button:nth-child(3){background:#078cf0}
+.floating-reader-tools button:nth-child(4){background:#929292}
+.floating-reader-tools svg{width:25px;height:25px}
+.floating-reader-tools small{font-size:10px;font-weight:700}
+.bottom-nav{height:94px;padding:9px 8px max(9px,env(safe-area-inset-bottom));background:#999;border:0;gap:0}
+.nav-item{color:#fff;font-size:12px;min-width:0;flex:1;gap:6px}
+.nav-item svg{width:27px;height:27px;stroke-width:1.5}
+.nav-item.selected{color:#fff;font-weight:700}
+.nav-item.selected:before{display:none}
+.tools-row,.reading-progress{display:none}
+.app.dark{--bg:#17191d;--surface:#202329;--text:#f1f2f4;background:#17191d}
+.dark .scripture-card{background:#17191d}
+.dark .verse-texts p{color:#f0f0f0}
+.dark .verse-texts .verse-secondary{color:#9eafd0}
+.dark .verse.highlighted{background:#3d3526}
+@media(max-width:420px){
+ .reader-topbar{height:132px;padding:34px 16px 14px}
+ .top-actions{gap:2px}
+ .reader-topbar .icon-btn{width:36px;height:40px}
+ .reader-topbar .icon-btn svg{width:24px;height:24px}
+ .topbar-title>strong{font-size:25px}
+ .topbar-version select{font-size:11px;padding:6px 9px}
+ .floating-reader-tools{gap:6px;bottom:104px;left:12px;right:12px}
+ .floating-reader-tools button{width:68px;height:68px;border-width:4px}
+ .floating-reader-tools button:nth-child(1){margin-right:auto}
+ .bottom-nav{height:94px}
+ .verse{gap:7px}
+ .verse-num{min-width:20px}
+}
