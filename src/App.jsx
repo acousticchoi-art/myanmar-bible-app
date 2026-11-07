@@ -36,10 +36,10 @@ export default function App() {
   useEffect(()=>{let active=true;setBibleLoading(true);setBibleError('');const loader=primaryVersion==='my'?loadBurmeseBook:primaryVersion==='en'?loadEnglishBook:loadKJVBook;if(loader){loader(book).then(data=>{if(active){if(primaryVersion==='my')setBurmeseBook(data);else if(primaryVersion==='en')setEnglishBook(data);else setKjvBook(data)}}).catch(()=>{if(active)setBibleError('ကျမ်းစာကို ဖွင့်၍မရပါ။ အင်တာနက်ကို စစ်ဆေးပါ။')}).finally(()=>{if(active)setBibleLoading(false)})}else{setBibleLoading(false)}return()=>{active=false}},[book,primaryVersion])
   useEffect(()=>{let active=true;if(compare){(secondaryVersion==='my'?loadBurmeseBook:secondaryVersion==='en'?loadEnglishBook:loadKJVBook)(book).then(data=>{if(active){if(secondaryVersion==='my')setSecondaryBurmeseBook(data);else if(secondaryVersion==='en')setSecondaryEnglishBook(data);else setSecondaryKjvBook(data)}}).catch(()=>{});}return()=>{active=false}},[book,secondaryVersion,compare])
   const bookTitle=primaryVersion==='my'?(burmeseBook?.bookName||book.en):primaryVersion==='en'?(englishBook?.bookName||book.en): (kjvBook?.bookName||book.en)
-  const chapterVerses=primaryVersion==='en'?(englishBook?.chapters?.[chapter]||[]):(burmeseBook?.chapters?.[chapter]||[])
-  const verses=primaryVersion==='ko'?koSampleVerses:chapterVerses.map(v=>v.text)
-  const secondaryChapterVerses=secondaryVersion==='en'?(secondaryEnglishBook?.chapters?.[chapter]||[]):(secondaryBurmeseBook?.chapters?.[chapter]||[])
-  const secondaryVerses=secondaryVersion==='ko'?koSampleVerses:secondaryChapterVerses.map(v=>v.text)
+  const chapterVerses=(primaryVersion==='my'?burmeseBook:primaryVersion==='en'?englishBook:kjvBook)?.chapters?.[chapter]||[]
+  const verses=chapterVerses.map(v=>v.text)
+  const secondaryChapterVerses=(secondaryVersion==='my'?secondaryBurmeseBook:secondaryVersion==='en'?secondaryEnglishBook:secondaryKjvBook)?.chapters?.[chapter]||[]
+  const secondaryVerses=secondaryChapterVerses.map(v=>v.text)
   const setVersion=(which,value)=>{if(which==='primary'){setPrimaryVersion(value);localStorage.setItem('bible-primary-version',value)}else{setSecondaryVersion(value);localStorage.setItem('bible-secondary-version',value)}}
   const toggleCompare=()=>{setCompare(v=>{localStorage.setItem('bible-compare',String(!v));return !v})}
   const toggleMark=(n)=>setMarked(v=>{const key=book.code+':'+chapter+':'+n;const next=v.includes(key)?v.filter(x=>x!==key):[...v,key];localStorage.setItem('bible-highlights',JSON.stringify(next));return next})
