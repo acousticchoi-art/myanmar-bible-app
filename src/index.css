@@ -550,3 +550,13 @@ body{overflow-x:hidden;background:#fff}
  .reader-topbar .icon-btn{width:37px;height:39px;border-radius:12px}
  .reader-topbar .icon-btn svg{width:20px;height:20px}
 }
+
+
+/* Verse interaction feedback */
+.verse{scroll-margin-top:120px;transition:background-color .16s ease,box-shadow .16s ease}
+.verse.verse-selected{box-shadow:inset 3px 0 0 #d4a64d}
+.verse.highlighted{background:#fff3d7}
+.dark .verse.highlighted{background:#403722}
+.verse-bookmark{cursor:pointer;border-radius:8px}
+.verse-bookmark:active{background:rgba(22,137,232,.12)}
+.note-sheet textarea{width:100%;min-height:150px;resize:vertical;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;line-height:1.6}
