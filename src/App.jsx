@@ -1,14 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { books, loadBurmeseBook } from './data/burmeseBible'
 import { BookOpen, Bookmark, Headphones, Home, Search, Highlighter, NotebookPen, Share2, ChevronDown, ChevronLeft, ChevronRight, Type, Sun, Moon, X, Check, CalendarDays, Sparkles, Languages, Columns2 } from 'lucide-react'
 
-const books = [
-  { name: 'ကမ္ဘာဦးကျမ်း', ko: '창세기', en: 'Genesis', chapters: 50 },
-  { name: 'ထွက်မြောက်ရာကျမ်း', ko: '출애굽기', en: 'Exodus', chapters: 40 },
-  { name: 'ဆာလံကျမ်း', ko: '시편', en: 'Psalms', chapters: 150 },
-  { name: 'ရှင်မဿဲခရစ်ဝင်', ko: '마태복음', en: 'Matthew', chapters: 28 },
-  { name: 'ရှင်ယောဟန်ခရစ်ဝင်', ko: '요한복음', en: 'John', chapters: 21 },
-  { name: 'ရောမဩဝါဒစာ', ko: '로마서', en: 'Romans', chapters: 16 }
-]
 const sampleVerses = [
   'အစအဦး၌ ဘုရားသခင်သည် ကောင်းကင်နှင့် မြေကြီးကို ဖန်ဆင်းတော်မူ၏။',
   'မြေကြီးသည် အဆင်းသဏ္ဌာန်မရှိ၊ လွတ်လပ်လဟာဖြစ်၏။ နက်နဲရာအရပ်ကို မှောင်မိုက်ဖုံးလွှမ်းလျက်ရှိ၏။',
@@ -30,15 +23,23 @@ const copy = {
 const navIcons = [Home, BookOpen, CalendarDays, Headphones, Bookmark]
 export default function App() {
   const [lang,setLang]=useState(()=>localStorage.getItem('bible-language') || 'my')
+  const [burmeseBook,setBurmeseBook]=useState(null)
+  const [secondaryBurmeseBook,setSecondaryBurmeseBook]=useState(null)
+  const [bibleLoading,setBibleLoading]=useState(false)
+  const [bibleError,setBibleError]=useState('')
   const [compare,setCompare]=useState(()=>localStorage.getItem('bible-compare') === 'true')
   const [primaryVersion,setPrimaryVersion]=useState(()=>localStorage.getItem('bible-primary-version') || 'my')
   const [secondaryVersion,setSecondaryVersion]=useState(()=>localStorage.getItem('bible-secondary-version') || 'ko')
   const t=copy[lang]
   const [tab,setTab]=useState('read'), [book,setBook]=useState(books[0]), [chapter,setChapter]=useState(1), [fontSize,setFontSize]=useState(21), [dark,setDark]=useState(false), [marked,setMarked]=useState([2]), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [showBooks,setShowBooks]=useState(false), [search,setSearch]=useState('')
   const versionNames={my:lang==='ko'?'미얀마어 성경 (샘플)':'မြန်မာကျမ်းစာ (နမူနာ)',ko:lang==='ko'?'한국어 성경 (샘플)':'ကိုရီးယားကျမ်းစာ (နမူနာ)'}
-  const bookTitle=primaryVersion==='ko'?book.ko:book.name
-  const verses=primaryVersion==='ko'?koSampleVerses:sampleVerses
-  const secondaryVerses=secondaryVersion==='ko'?koSampleVerses:sampleVerses
+  useEffect(()=>{let active=true;setBibleLoading(primaryVersion==='my');setBibleError('');if(primaryVersion==='my'){loadBurmeseBook(book).then(data=>{if(active)setBurmeseBook(data)}).catch(()=>{if(active)setBibleError(lang==='ko'?'본문을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.':'ကျမ်းစာကို ဖွင့်၍မရပါ။ အင်တာနက်ကို စစ်ဆေးပါ။')}).finally(()=>{if(active)setBibleLoading(false)})}return()=>{active=false}},[book,primaryVersion,lang])
+  useEffect(()=>{let active=true;if(compare&&secondaryVersion==='my'){loadBurmeseBook(book).then(data=>{if(active)setSecondaryBurmeseBook(data)}).catch(()=>{});}return()=>{active=false}},[book,secondaryVersion,compare])
+  const bookTitle=primaryVersion==='ko'?book.ko:(burmeseBook?.bookName||book.en)
+  const chapterVerses=burmeseBook?.chapters?.[chapter]||[]
+  const verses=primaryVersion==='ko'?koSampleVerses:chapterVerses.map(v=>v.text)
+  const secondaryChapterVerses=secondaryBurmeseBook?.chapters?.[chapter]||[]
+  const secondaryVerses=secondaryVersion==='ko'?koSampleVerses:secondaryChapterVerses.map(v=>v.text)
   const setVersion=(which,value)=>{if(which==='primary'){setPrimaryVersion(value);localStorage.setItem('bible-primary-version',value)}else{setSecondaryVersion(value);localStorage.setItem('bible-secondary-version',value)}}
   const toggleCompare=()=>{setCompare(v=>{localStorage.setItem('bible-compare',String(!v));return !v})}
   const toggleMark=(n)=>setMarked(v=>v.includes(n)?v.filter(x=>x!==n):[...v,n])
@@ -50,12 +51,12 @@ export default function App() {
     {tab==='read' ? <section className="reader">
       <div className="reader-heading"><div><span className="eyebrow">{t.readEyebrow}</span><h1>{t.readTitle}</h1></div><div className="reader-actions"><button className={compare?'soft-btn compare-on':'soft-btn'} onClick={toggleCompare}><Columns2 size={16}/> {compare?(lang==='ko'?'함께 보기 중':'နှစ်ဘာသာ'): (lang==='ko'?'두 성경 함께 보기':'ဘာသာနှစ်မျိုး')}</button><button className="soft-btn" onClick={()=>setFontSize(v=>v>=27?17:v+2)}><Type size={17}/> {t.font}</button></div></div>
       <div className="version-selectors"><label className="version-picker"><span>{lang==='ko'?'첫 번째 번역본':'ပထမဘာသာပြန်'}</span><select value={primaryVersion} onChange={e=>setVersion('primary',e.target.value)}><option value="my">{versionNames.my}</option><option value="ko">{versionNames.ko}</option></select></label>{compare&&<label className="version-picker"><span>{lang==='ko'?'두 번째 번역본':'ဒုတိယဘာသာပြန်'}</span><select value={secondaryVersion} onChange={e=>setVersion('secondary',e.target.value)}><option value="my">{versionNames.my}</option><option value="ko">{versionNames.ko}</option></select></label>}</div><div className="selector-row"><button className="select-pill book-select" onClick={()=>setShowBooks(true)}>{bookTitle}<ChevronDown size={16}/></button><button className="select-pill" onClick={()=>setChapter(c=>Math.max(1,c-1))}><ChevronLeft size={15}/></button><span className="chapter-label">{chapter} <small>{t.chapter}</small></span><button className="select-pill" onClick={()=>setChapter(c=>Math.min(book.chapters,c+1))}><ChevronRight size={15}/></button></div>
-      <div className="scripture-card"><div className="scripture-meta"><span>{bookTitle} · {chapter}</span><span className="version-tag">{versionNames[primaryVersion]}</span></div>{verses.map((v,i)=><div key={i} className={`${marked.includes(i+1)?'verse highlighted':'verse'} ${compare?'verse-comparison':''}`} onClick={()=>toggleMark(i+1)}><span className="verse-num">{i+1}</span><div className="verse-texts"><p className={compare?'verse-primary':''} style={{fontSize}}>{v}</p>{compare&&<p className="verse-secondary" style={{fontSize:Math.max(15,fontSize-1)}}>{secondaryVerses[i]}</p>}</div>{marked.includes(i+1)&&<Bookmark size={15} className="verse-bookmark"/>}</div>)}<div className="sample-notice">{t.notice}</div></div>
+      <div className="scripture-card"><div className="scripture-meta"><span>{bookTitle} · {chapter}</span><span className="version-tag">{versionNames[primaryVersion]}</span></div>{(bibleLoading?[]:verses).map((v,i)=><div key={i} className={`${marked.includes(i+1)?'verse highlighted':'verse'} ${compare?'verse-comparison':''}`} onClick={()=>toggleMark(i+1)}><span className="verse-num">{i+1}</span><div className="verse-texts"><p className={compare?'verse-primary':''} style={{fontSize}}>{v}</p>{compare&&<p className="verse-secondary" style={{fontSize:Math.max(15,fontSize-1)}}>{secondaryVerses[i]}</p>}</div>{marked.includes(i+1)&&<Bookmark size={15} className="verse-bookmark"/>}</div>)}{bibleLoading&&<div className="sample-notice">{lang==='ko'?'미얀마어 성경을 불러오는 중입니다…':'ကျမ်းစာကို ဖွင့်နေသည်…'}</div>}{bibleError&&<div className="sample-notice">{bibleError}</div>}{primaryVersion==='ko'&&<div className="sample-notice">{t.notice}</div>}</div>
       <div className="tools-row"><button onClick={()=>setSaved(!saved)} className={saved?'tool active':'tool'}><Bookmark/><span>{t.save}</span></button><button onClick={()=>toggleMark(1)} className="tool"><Highlighter/><span>{t.highlight}</span></button><button onClick={()=>setShowNote(true)} className="tool"><NotebookPen/><span>{t.note}</span></button><button onClick={()=>navigator.clipboard?.writeText(verses[0])} className="tool"><Share2/><span>{t.share}</span></button></div>
       <div className="reading-progress"><div><span>{t.today}</span><strong>{t.minutes}</strong></div><div className="progress"><i/></div></div>
-    </section> : tab==='search' ? <section className="reader"><div className="reader-heading"><div><span className="eyebrow">{t.search}</span><h1>{t.searchTitle}</h1></div></div><input className="search-input" placeholder={t.searchPlaceholder} value={search} onChange={e=>setSearch(e.target.value)}/>{filtered.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setTab('read')}}><BookOpen/><span>{lang==='ko'?b.ko:b.name}<small>{b.en} · {b.chapters} {t.chapter}</small></span><ChevronRight/></button>)}</section> : <section className="reader"><div className="reader-heading"><div><span className="eyebrow">{t.library}</span><h1>{t.tabs[tabIds.indexOf(tab)]}</h1></div></div><div className="empty-state"><div className="empty-icon"><Sparkles/></div><h2>{t.soon}</h2><p>{t.soonText}</p></div></section>}
+    </section> : tab==='search' ? <section className="reader"><div className="reader-heading"><div><span className="eyebrow">{t.search}</span><h1>{t.searchTitle}</h1></div></div><input className="search-input" placeholder={t.searchPlaceholder} value={search} onChange={e=>setSearch(e.target.value)}/>{filtered.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setTab('read')}}><BookOpen/><span>{lang==='ko'?b.ko:b.en}<small>{b.en} · {b.chapters} {t.chapter}</small></span><ChevronRight/></button>)}</section> : <section className="reader"><div className="reader-heading"><div><span className="eyebrow">{t.library}</span><h1>{t.tabs[tabIds.indexOf(tab)]}</h1></div></div><div className="empty-state"><div className="empty-icon"><Sparkles/></div><h2>{t.soon}</h2><p>{t.soonText}</p></div></section>}
     <nav className="bottom-nav">{tabIds.map((id,i)=>{const Icon=navIcons[i];return <button key={id} className={tab===id?'nav-item selected':'nav-item'} onClick={()=>setTab(id)}><Icon size={20}/><span>{t.tabs[i]}</span></button>})}</nav>
-    {showBooks&&<div className="overlay" onClick={()=>setShowBooks(false)}><div className="sheet" onClick={e=>e.stopPropagation()}><div className="sheet-head"><h2>{t.choose}</h2><button className="icon-btn" onClick={()=>setShowBooks(false)}><X/></button></div>{books.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setShowBooks(false)}}><BookOpen/><span>{lang==='ko'?b.ko:b.name}<small>{b.en}</small></span><ChevronRight/></button>)}</div></div>}
+    {showBooks&&<div className="overlay" onClick={()=>setShowBooks(false)}><div className="sheet" onClick={e=>e.stopPropagation()}><div className="sheet-head"><h2>{t.choose}</h2><button className="icon-btn" onClick={()=>setShowBooks(false)}><X/></button></div>{books.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setShowBooks(false)}}><BookOpen/><span>{lang==='ko'?b.ko:b.en}<small>{b.en}</small></span><ChevronRight/></button>)}</div></div>}
     {showNote&&<div className="overlay" onClick={()=>setShowNote(false)}><div className="sheet note-sheet" onClick={e=>e.stopPropagation()}><div className="sheet-head"><h2>{t.personalNote}</h2><button className="icon-btn" onClick={()=>setShowNote(false)}><X/></button></div><textarea value={note} onChange={e=>setNote(e.target.value)} placeholder={t.writeNote}/><button className="primary-btn" onClick={()=>setShowNote(false)}><Check size={17}/> {t.keep}</button></div></div>}
   </main>
 }
