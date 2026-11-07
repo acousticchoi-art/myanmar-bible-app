@@ -576,3 +576,23 @@ export async function loadKJVBook(book) {
   }
   return { bookCode: book.code, bookName: book.en, chapters };
 }
+
+
+// New International Version (NIV) — loaded one book at a time.
+// Source: aruljohn/Bible-niv JSON mirror. Text use is based on the user's confirmation of permission.
+const NIV_BASE = "https://raw.githubusercontent.com/aruljohn/Bible-niv/main/";
+const NIV_BOOK_NAMES = { SNG: "Song Of Solomon" };
+export async function loadNIVBook(book) {
+  const fileName = (NIV_BOOK_NAMES[book.code] || book.en) + ".json";
+  const response = await fetch(NIV_BASE + encodeURIComponent(fileName));
+  if (!response.ok) throw new Error("Unable to load NIV book: " + book.code);
+  const source = await response.json();
+  const chapters = {};
+  for (const item of source.chapters || []) {
+    chapters[Number(item.chapter)] = (item.verses || []).map(verse => ({
+      number: Number(verse.verse),
+      text: String(verse.text || "").trim()
+    }));
+  }
+  return { bookCode: book.code, bookName: source.book || book.en, chapters };
+}
