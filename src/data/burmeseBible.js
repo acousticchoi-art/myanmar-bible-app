@@ -543,3 +543,36 @@ export async function loadEnglishBook(book) {
   }
   return { bookCode: book.code, bookName: englishName, chapters: chapterMap };
 }
+
+
+// King James Version (1769) — Public Domain / Unlicense.
+// Source: farskipper/kjv, json/verses-1769.json.
+const KJV_URL = "https://raw.githubusercontent.com/farskipper/kjv/master/json/verses-1769.json";
+let kjvPromise;
+export async function loadKJVBook(book) {
+  if (!kjvPromise) {
+    kjvPromise = fetch(KJV_URL).then(response => {
+      if (!response.ok) throw new Error("Unable to load KJV text");
+      return response.json();
+    }).catch(error => {
+      kjvPromise = null;
+      throw error;
+    });
+  }
+  const allVerses = await kjvPromise;
+  const chapters = {};
+  const prefix = book.en + " ";
+  for (const [reference, rawText] of Object.entries(allVerses)) {
+    if (!reference.startsWith(prefix)) continue;
+    const match = reference.slice(prefix.length).match(/^(\\d+):(\\d+)$/);
+    if (!match) continue;
+    const chapter = Number(match[1]);
+    const verse = Number(match[2]);
+    if (!chapters[chapter]) chapters[chapter] = [];
+    chapters[chapter].push({
+      number: verse,
+      text: String(rawText).replace(/^#\\s*/, "").replace(/\\[([^\\]]+)\\]/g, "$1").trim()
+    });
+  }
+  return { bookCode: book.code, bookName: book.en, chapters };
+}
