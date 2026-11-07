@@ -503,3 +503,50 @@ body{overflow-x:hidden;background:#fff}
   .verse-bookmark{flex-basis:26px;width:26px}
   .floating-reader-tools{left:9px;right:9px;gap:4px}
 }
+
+
+/* Refined compact scripture header */
+.reader-topbar{
+  min-height:112px;
+  align-items:center;
+  padding:calc(env(safe-area-inset-top) + 15px) clamp(18px,5vw,28px) 17px;
+  background:linear-gradient(135deg,#626b78 0%,#465365 100%);
+  border-bottom:3px solid #d5c8a5;
+  box-shadow:0 5px 18px rgba(28,42,60,.16);
+}
+.topbar-title{
+  align-self:center;display:flex;flex-direction:column;align-items:flex-start;
+  justify-content:center;gap:5px;min-width:0;
+}
+.topbar-eyebrow{
+  display:block;color:rgba(255,255,255,.72);
+  font-size:11px;line-height:1.3;font-weight:500;letter-spacing:.04em;
+}
+.scripture-title-button{
+  width:100%;max-width:100%;display:block;
+  color:#fff;font-size:clamp(23px,5.6vw,30px);
+  line-height:1.3;font-weight:700;letter-spacing:-.025em;
+  overflow:visible;text-overflow:clip;
+}
+.scripture-title-button span{
+  display:inline-block;margin-left:5px;
+  color:#f1dfb5;font-size:.82em;font-weight:600;
+}
+.top-actions{align-self:center;gap:7px}
+.reader-topbar .icon-btn{
+  width:42px;height:42px;border:1px solid rgba(255,255,255,.22);
+  border-radius:14px;background:rgba(255,255,255,.09);
+  color:#fff;backdrop-filter:blur(5px);
+}
+.reader-topbar .icon-btn:active{background:rgba(255,255,255,.2)}
+.reader-topbar .icon-btn svg{width:22px;height:22px}
+.more-dots{font-size:27px;font-weight:700}
+@media(max-width:390px){
+ .reader-topbar{min-height:102px;padding-left:15px;padding-right:13px;gap:8px}
+ .topbar-eyebrow{font-size:10px}
+ .scripture-title-button{font-size:21px;white-space:normal;overflow-wrap:anywhere}
+ .scripture-title-button span{font-size:.78em}
+ .top-actions{gap:5px}
+ .reader-topbar .icon-btn{width:37px;height:39px;border-radius:12px}
+ .reader-topbar .icon-btn svg{width:20px;height:20px}
+}
