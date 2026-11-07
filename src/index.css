@@ -346,3 +346,12 @@
  .navigator-current{min-height:62px;padding:8px 12px}
  .navigator-current strong{font-size:15px}
 }
+
+
+.settings-list{display:flex;flex-direction:column;gap:0;border-top:1px solid #e5e7eb}
+.settings-list button{min-height:56px;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;border:0;border-bottom:1px solid #e5e7eb;background:transparent;color:var(--text);font:inherit;text-align:left}
+.settings-list button span{color:#1689e8;font-weight:700}
+.verse-bookmark{border:0;background:transparent;color:#a0a5ad;padding:5px;align-self:flex-start;flex-shrink:0}
+.verse-bookmark.active{color:#1689e8}
+.verse-bookmark.active svg{fill:#1689e8;stroke:#1689e8}
+.verse{cursor:pointer}
