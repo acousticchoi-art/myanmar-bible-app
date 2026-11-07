@@ -260,3 +260,89 @@
  .version-option{min-height:59px;font-size:15px;padding:10px 6px}
  .version-modal-foot{min-height:58px;padding:9px 13px}
 }
+
+
+/* Three-pane passage navigator */
+.scripture-title-button{
+  display:block;
+  max-width:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#fff;
+  font:inherit;
+  font-size:clamp(23px,5vw,34px);
+  font-weight:700;
+  line-height:1.15;
+  text-align:left;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  cursor:pointer;
+}
+.navigator-overlay{align-items:stretch;padding:0;background:rgba(20,24,30,.38)}
+.navigator-modal{
+  width:100%;height:100%;max-height:100%;
+  display:flex;flex-direction:column;overflow:hidden;
+  background:#fff;color:#62666b;
+  padding-top:env(safe-area-inset-top);
+}
+.navigator-head{
+  min-height:66px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px 0 22px;background:#858585;color:#fff;flex-shrink:0;
+}
+.navigator-head h2{font-size:20px;margin:0;font-weight:700}
+.navigator-head button{border:0;background:transparent;color:#fff;width:42px;height:42px;display:grid;place-items:center}
+.navigator-head svg{width:29px;height:29px;stroke-width:1.4}
+.navigator-columns{
+  flex:1;min-height:0;display:grid;
+  grid-template-columns:1.55fr .76fr .76fr;
+  overflow:hidden;
+}
+.navigator-columns section{min-width:0;overflow-y:auto;overscroll-behavior:contain}
+.navigator-books{border-right:1px solid #d4d6d8}
+.navigator-chapters{border-right:1px solid #d4d6d8}
+.navigator-section-label{
+  position:sticky;top:0;z-index:1;
+  height:32px;padding:6px 10px;
+  background:#e1e5ea;color:#646a71;font-size:12px;
+}
+.navigator-book{
+  width:calc(100% - 22px);min-height:70px;margin:0 11px;
+  padding:9px 8px;display:flex;flex-direction:column;justify-content:center;
+  border:0;border-bottom:1px solid #e1e2e4;background:#fff;
+  color:#5e6267;text-align:left;font:inherit;cursor:pointer;
+}
+.navigator-book span{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navigator-book small{font-size:12px;color:#999;margin-top:1px}
+.navigator-book.selected{background:#c1c2ae;color:#fff}
+.navigator-book.selected small{color:#f0f0e9}
+.navigator-number{
+  width:calc(100% - 22px);min-height:58px;margin:0 11px;
+  padding:10px 3px;display:flex;align-items:center;justify-content:flex-end;
+  border:0;border-bottom:1px solid #e1e2e4;background:#fff;
+  color:#62666b;font:inherit;font-size:17px;font-weight:600;
+  white-space:nowrap;cursor:pointer;
+}
+.navigator-number.selected{background:#c1c2ae;color:#fff}
+.navigator-current{
+  min-height:65px;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:9px 16px;background:#edf0f2;border-top:1px solid #dfe2e5;
+  flex-shrink:0;
+}
+.navigator-current strong{font-size:17px;color:#1479dc}
+.navigator-current button{
+  border:0;border-radius:8px;background:#1687e8;color:#fff;
+  padding:10px 13px;font:inherit;font-size:13px;font-weight:600;white-space:nowrap;
+}
+@media(max-width:480px){
+ .navigator-head{min-height:62px;padding-left:16px}
+ .navigator-head h2{font-size:18px}
+ .navigator-columns{grid-template-columns:1.55fr .76fr .76fr}
+ .navigator-book{width:calc(100% - 14px);margin:0 7px;min-height:65px;padding:8px 5px}
+ .navigator-book span{font-size:15px}
+ .navigator-book small{font-size:11px}
+ .navigator-number{width:calc(100% - 12px);margin:0 6px;min-height:58px;font-size:16px}
+ .navigator-current{min-height:62px;padding:8px 12px}
+ .navigator-current strong{font-size:15px}
+}
