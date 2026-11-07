@@ -32,7 +32,7 @@ export default function App() {
   const [secondaryVersion,setSecondaryVersion]=useState(()=>localStorage.getItem('bible-secondary-version') || 'ko')
   const t=copy[lang]
   const [tab,setTab]=useState('read'), [book,setBook]=useState(books[0]), [chapter,setChapter]=useState(1), [fontSize,setFontSize]=useState(21), [dark,setDark]=useState(false), [marked,setMarked]=useState([2]), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [showBooks,setShowBooks]=useState(false), [search,setSearch]=useState('')
-  const versionNames={my:lang==='ko'?'미얀마어 성경 (샘플)':'မြန်မာကျမ်းစာ (နမူနာ)',ko:lang==='ko'?'한국어 성경 (샘플)':'ကိုရီးယားကျမ်းစာ (နမူနာ)'}
+  const versionNames={my:lang==='ko'?'미얀마어 Judson 성경':'Judson သမ္မာကျမ်းစာ',ko:lang==='ko'?'한국어 성경 (샘플)':'ကိုရီးယားကျမ်းစာ (နမူနာ)'}
   useEffect(()=>{let active=true;setBibleLoading(primaryVersion==='my');setBibleError('');if(primaryVersion==='my'){loadBurmeseBook(book).then(data=>{if(active)setBurmeseBook(data)}).catch(()=>{if(active)setBibleError(lang==='ko'?'본문을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.':'ကျမ်းစာကို ဖွင့်၍မရပါ။ အင်တာနက်ကို စစ်ဆေးပါ။')}).finally(()=>{if(active)setBibleLoading(false)})}return()=>{active=false}},[book,primaryVersion,lang])
   useEffect(()=>{let active=true;if(compare&&secondaryVersion==='my'){loadBurmeseBook(book).then(data=>{if(active)setSecondaryBurmeseBook(data)}).catch(()=>{});}return()=>{active=false}},[book,secondaryVersion,compare])
   const bookTitle=primaryVersion==='ko'?book.ko:(burmeseBook?.bookName||book.en)
@@ -43,7 +43,7 @@ export default function App() {
   const setVersion=(which,value)=>{if(which==='primary'){setPrimaryVersion(value);localStorage.setItem('bible-primary-version',value)}else{setSecondaryVersion(value);localStorage.setItem('bible-secondary-version',value)}}
   const toggleCompare=()=>{setCompare(v=>{localStorage.setItem('bible-compare',String(!v));return !v})}
   const toggleMark=(n)=>setMarked(v=>v.includes(n)?v.filter(x=>x!==n):[...v,n])
-  const filtered=useMemo(()=>books.filter(b=>(b.name+b.ko+b.en).toLowerCase().includes(search.toLowerCase())),[search])
+  const filtered=useMemo(()=>books.filter(b=>(b.en+b.ko+b.code).toLowerCase().includes(search.toLowerCase())),[search])
   const changeLang=(value)=>{setLang(value);localStorage.setItem('bible-language',value)}
   const tabIds=['home','read','plans','audio','saved']
   return <main className={dark?'app dark':'app'} lang={lang==='ko'?'ko':'my'}>
