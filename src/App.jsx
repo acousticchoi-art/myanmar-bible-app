@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react'
-import { BookOpen, Bookmark, Headphones, Home, Search, Settings, Highlighter, NotebookPen, Share2, ChevronDown, ChevronLeft, ChevronRight, Type, Sun, Moon, X, Check, CalendarDays, Sparkles } from 'lucide-react'
+import { BookOpen, Bookmark, Headphones, Home, Search, Highlighter, NotebookPen, Share2, ChevronDown, ChevronLeft, ChevronRight, Type, Sun, Moon, X, Check, CalendarDays, Sparkles, Languages } from 'lucide-react'
 
-const books = [{ name: 'ကမ္ဘာဦးကျမ်း', en: 'Genesis', chapters: 50 }, { name: 'ထွက်မြောက်ရာကျမ်း', en: 'Exodus', chapters: 40 }, { name: 'ဆာလံကျမ်း', en: 'Psalms', chapters: 150 }, { name: 'ရှင်မဿဲခရစ်ဝင်', en: 'Matthew', chapters: 28 }, { name: 'ရှင်ယောဟန်ခရစ်ဝင်', en: 'John', chapters: 21 }, { name: 'ရောမဩဝါဒစာ', en: 'Romans', chapters: 16 }]
+const books = [
+  { name: 'ကမ္ဘာဦးကျမ်း', ko: '창세기', en: 'Genesis', chapters: 50 },
+  { name: 'ထွက်မြောက်ရာကျမ်း', ko: '출애굽기', en: 'Exodus', chapters: 40 },
+  { name: 'ဆာလံကျမ်း', ko: '시편', en: 'Psalms', chapters: 150 },
+  { name: 'ရှင်မဿဲခရစ်ဝင်', ko: '마태복음', en: 'Matthew', chapters: 28 },
+  { name: 'ရှင်ယောဟန်ခရစ်ဝင်', ko: '요한복음', en: 'John', chapters: 21 },
+  { name: 'ရောမဩဝါဒစာ', ko: '로마서', en: 'Romans', chapters: 16 }
+]
 const sampleVerses = [
   'အစအဦး၌ ဘုရားသခင်သည် ကောင်းကင်နှင့် မြေကြီးကို ဖန်ဆင်းတော်မူ၏။',
   'မြေကြီးသည် အဆင်းသဏ္ဌာန်မရှိ၊ လွတ်လပ်လဟာဖြစ်၏။ နက်နဲရာအရပ်ကို မှောင်မိုက်ဖုံးလွှမ်းလျက်ရှိ၏။',
@@ -9,23 +16,39 @@ const sampleVerses = [
   'ဘုရားသခင်က အလင်းဖြစ်စေဟု မိန့်တော်မူ၍ အလင်းဖြစ်လေ၏။',
   'ဘုရားသခင်သည် အလင်းကောင်းသည်ကို မြင်တော်မူ၍ အလင်းနှင့် မှောင်မိုက်ကို ပိုင်းခြားတော်မူ၏။'
 ]
-const nav = [{id:'home',label:'ပင်မ',Icon:Home},{id:'read',label:'ကျမ်းစာ',Icon:BookOpen},{id:'plans',label:'အစီအစဉ်',Icon:CalendarDays},{id:'audio',label:'အသံ',Icon:Headphones},{id:'saved',label:'သိမ်းဆည်း',Icon:Bookmark}]
+const koSampleVerses = [
+  '태초에 하나님이 하늘과 땅을 창조하셨습니다.',
+  '땅은 아직 형태가 없고 비어 있었으며, 깊은 어둠이 덮여 있었습니다.',
+  '하나님의 영은 물 위에 움직이고 계셨습니다.',
+  '하나님이 말씀하시기를 “빛이 있으라” 하시니 빛이 생겼습니다.',
+  '하나님은 빛이 좋은 것을 보시고 빛과 어둠을 나누셨습니다.'
+]
+const copy = {
+  my: { brand:'သမ္မာကျမ်းစာ', tagline:'နေ့စဉ် နှုတ်ကပတ်တော်', search:'ရှာဖွေရန်', readEyebrow:'သမ္မာကျမ်းစာ ဖတ်ရှုရန်', readTitle:'ကျမ်းစာဖတ်ရန်', font:'စာလုံး', chapter:'အခန်း', sample:'နမူနာစာသား', notice:'ဤစာသားများသည် UI စမ်းသပ်ရန်အတွက်သာ ဖြစ်သည်။ တရားဝင်ကျမ်းစာမူကို ခွင့်ပြုချက်ရရှိပြီးမှ ထည့်သွင်းပါမည်။', save:'သိမ်းရန်', highlight:'အရောင်ခြယ်', note:'မှတ်စု', share:'မျှဝေရန်', today:'ယနေ့ ဖတ်ရှုမှု', minutes:'၅ / ၂၀ မိနစ်', searchTitle:'ကျမ်းစာရှာဖွေမှု', searchPlaceholder:'ကျမ်းစာအုပ် ရှာရန်...', library:'သင့်စာကြည့်တိုက်', soon:'မကြာမီ ရရှိနိုင်ပါမည်', soonText:'ဤအပိုင်းကို နောက်အဆင့်တွင် ဆက်လက်တည်ဆောက်ပါမည်။', choose:'ကျမ်းစာအုပ် ရွေးချယ်ရန်', personalNote:'ကိုယ်ပိုင်မှတ်စု', writeNote:'သင့်ရဲ့ အတွေးအမြင်ကို ရေးသားပါ...', keep:'သိမ်းဆည်းရန်', tabs:['ပင်မ','ကျမ်းစာ','အစီအစဉ်','အသံ','သိမ်းဆည်း'] },
+  ko: { brand:'미얀마 성경', tagline:'매일 만나는 하나님의 말씀', search:'검색', readEyebrow:'말씀 읽기', readTitle:'성경 읽기', font:'글자 크기', chapter:'장', sample:'샘플 본문', notice:'이 문구는 화면 테스트용 샘플입니다. 정식 성경 본문은 사용 허가를 받은 후 반영합니다.', save:'북마크', highlight:'하이라이트', note:'메모', share:'공유', today:'오늘의 읽기', minutes:'5 / 20분', searchTitle:'성경 검색', searchPlaceholder:'성경 이름 검색...', library:'내 성경 보관함', soon:'곧 제공됩니다', soonText:'이 기능은 다음 개발 단계에서 추가할 예정입니다.', choose:'성경 선택', personalNote:'나의 묵상 메모', writeNote:'말씀을 읽으며 떠오른 생각을 적어보세요...', keep:'저장하기', tabs:['홈','성경','읽기 계획','오디오','저장'] }
+}
+const navIcons = [Home, BookOpen, CalendarDays, Headphones, Bookmark]
 export default function App() {
+  const [lang,setLang]=useState(()=>localStorage.getItem('bible-language') || 'my')
+  const t=copy[lang]
   const [tab,setTab]=useState('read'), [book,setBook]=useState(books[0]), [chapter,setChapter]=useState(1), [fontSize,setFontSize]=useState(21), [dark,setDark]=useState(false), [marked,setMarked]=useState([2]), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [showBooks,setShowBooks]=useState(false), [search,setSearch]=useState('')
-  const title = book.en==='Genesis'?'ကမ္ဘာဦးကျမ်း':book.name
+  const bookTitle=lang==='ko'?book.ko:book.name
+  const verses=lang==='ko'?koSampleVerses:sampleVerses
   const toggleMark=(n)=>setMarked(v=>v.includes(n)?v.filter(x=>x!==n):[...v,n])
-  const filtered=useMemo(()=>books.filter(b=>(b.name+b.en).toLowerCase().includes(search.toLowerCase())),[search])
-  return <main className={dark?'app dark':'app'}>
-    <header className="topbar"><div className="brand"><div className="brand-mark"><BookOpen size={19}/></div><div><strong>သမ္မာကျမ်းစာ</strong><small>နေ့စဉ် နှုတ်ကပတ်တော်</small></div></div><div className="top-actions"><button className="icon-btn" onClick={()=>setTab('search')} aria-label="Search"><Search/></button><button className="icon-btn" onClick={()=>setDark(!dark)} aria-label="Toggle theme">{dark?<Sun/>:<Moon/>}</button></div></header>
+  const filtered=useMemo(()=>books.filter(b=>(b.name+b.ko+b.en).toLowerCase().includes(search.toLowerCase())),[search])
+  const changeLang=(value)=>{setLang(value);localStorage.setItem('bible-language',value)}
+  const tabIds=['home','read','plans','audio','saved']
+  return <main className={dark?'app dark':'app'} lang={lang==='ko'?'ko':'my'}>
+    <header className="topbar"><div className="brand"><div className="brand-mark"><BookOpen size={19}/></div><div><strong>{t.brand}</strong><small>{t.tagline}</small></div></div><div className="top-actions"><button className="icon-btn" onClick={()=>setTab('search')} aria-label={t.search}><Search/></button><button className="icon-btn" onClick={()=>changeLang(lang==='my'?'ko':'my')} aria-label="Language"><Languages/></button><button className="icon-btn" onClick={()=>setDark(!dark)} aria-label="Toggle theme">{dark?<Sun/>:<Moon/>}</button></div></header>
     {tab==='read' ? <section className="reader">
-      <div className="reader-heading"><div><span className="eyebrow">သမ္မာကျမ်းစာ ဖတ်ရှုရန်</span><h1>ကျမ်းစာဖတ်ရန်</h1></div><button className="soft-btn" onClick={()=>setFontSize(v=>v>=27?17:v+2)}><Type size={17}/> စာလုံး</button></div>
-      <div className="selector-row"><button className="select-pill book-select" onClick={()=>setShowBooks(true)}>{title}<ChevronDown size={16}/></button><button className="select-pill" onClick={()=>setChapter(c=>Math.max(1,c-1))}><ChevronLeft size={15}/></button><span className="chapter-label">{chapter} <small>အခန်း</small></span><button className="select-pill" onClick={()=>setChapter(c=>Math.min(book.chapters,c+1))}><ChevronRight size={15}/></button></div>
-      <div className="scripture-card"><div className="scripture-meta"><span>{title} · {chapter}</span><span className="version-tag">နမူနာစာသား</span></div>{sampleVerses.map((v,i)=><div key={i} className={marked.includes(i+1)?'verse highlighted':'verse'} onClick={()=>toggleMark(i+1)}><span className="verse-num">{i+1}</span><p style={{fontSize}}>{v}</p>{marked.includes(i+1)&&<Bookmark size={15} className="verse-bookmark"/>}</div>)}<div className="sample-notice">ဤစာသားများသည် UI စမ်းသပ်ရန်အတွက်သာ ဖြစ်သည်။ တရားဝင်ကျမ်းစာမူကို ခွင့်ပြုချက်ရရှိပြီးမှ ထည့်သွင်းပါမည်။</div></div>
-      <div className="tools-row"><button onClick={()=>setSaved(!saved)} className={saved?'tool active':'tool'}><Bookmark/><span>သိမ်းရန်</span></button><button onClick={()=>toggleMark(1)} className="tool"><Highlighter/><span>အရောင်ခြယ်</span></button><button onClick={()=>setShowNote(true)} className="tool"><NotebookPen/><span>မှတ်စု</span></button><button onClick={()=>navigator.clipboard?.writeText(sampleVerses[0])} className="tool"><Share2/><span>မျှဝေရန်</span></button></div>
-      <div className="reading-progress"><div><span>ယနေ့ ဖတ်ရှုမှု</span><strong>၅ / ၂၀ မိနစ်</strong></div><div className="progress"><i/></div></div>
-    </section> : tab==='search' ? <section className="reader"><div className="reader-heading"><div><span className="eyebrow">ရှာဖွေရန်</span><h1>ကျမ်းစာရှာဖွေမှု</h1></div></div><input className="search-input" placeholder="ကျမ်းစာအုပ် ရှာရန်..." value={search} onChange={e=>setSearch(e.target.value)}/>{filtered.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setTab('read')}}><BookOpen/><span>{b.name}<small>{b.en} · {b.chapters} အခန်း</small></span><ChevronRight/></button>)}</section> : <section className="reader"><div className="reader-heading"><div><span className="eyebrow">သင့်စာကြည့်တိုက်</span><h1>{nav.find(n=>n.id===tab)?.label}</h1></div></div><div className="empty-state"><div className="empty-icon"><Sparkles/></div><h2>မကြာမီ ရရှိနိုင်ပါမည်</h2><p>ဤအပိုင်းကို နောက်အဆင့်တွင် ဆက်လက်တည်ဆောက်ပါမည်။</p></div></section>}
-    <nav className="bottom-nav">{nav.map(({id,label,Icon})=><button key={id} className={tab===id?'nav-item selected':'nav-item'} onClick={()=>setTab(id)}><Icon size={20}/><span>{label}</span></button>)}</nav>
-    {showBooks&&<div className="overlay" onClick={()=>setShowBooks(false)}><div className="sheet" onClick={e=>e.stopPropagation()}><div className="sheet-head"><h2>ကျမ်းစာအုပ် ရွေးချယ်ရန်</h2><button className="icon-btn" onClick={()=>setShowBooks(false)}><X/></button></div>{books.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setShowBooks(false)}}><BookOpen/><span>{b.name}<small>{b.en}</small></span><ChevronRight/></button>)}</div></div>}
-    {showNote&&<div className="overlay" onClick={()=>setShowNote(false)}><div className="sheet note-sheet" onClick={e=>e.stopPropagation()}><div className="sheet-head"><h2>ကိုယ်ပိုင်မှတ်စု</h2><button className="icon-btn" onClick={()=>setShowNote(false)}><X/></button></div><textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="သင့်ရဲ့ အတွေးအမြင်ကို ရေးသားပါ..."/><button className="primary-btn" onClick={()=>setShowNote(false)}><Check size={17}/> သိမ်းဆည်းရန်</button></div></div>}
+      <div className="reader-heading"><div><span className="eyebrow">{t.readEyebrow}</span><h1>{t.readTitle}</h1></div><button className="soft-btn" onClick={()=>setFontSize(v=>v>=27?17:v+2)}><Type size={17}/> {t.font}</button></div>
+      <div className="selector-row"><button className="select-pill book-select" onClick={()=>setShowBooks(true)}>{bookTitle}<ChevronDown size={16}/></button><button className="select-pill" onClick={()=>setChapter(c=>Math.max(1,c-1))}><ChevronLeft size={15}/></button><span className="chapter-label">{chapter} <small>{t.chapter}</small></span><button className="select-pill" onClick={()=>setChapter(c=>Math.min(book.chapters,c+1))}><ChevronRight size={15}/></button></div>
+      <div className="scripture-card"><div className="scripture-meta"><span>{bookTitle} · {chapter}</span><span className="version-tag">{t.sample}</span></div>{verses.map((v,i)=><div key={i} className={marked.includes(i+1)?'verse highlighted':'verse'} onClick={()=>toggleMark(i+1)}><span className="verse-num">{i+1}</span><p style={{fontSize}}>{v}</p>{marked.includes(i+1)&&<Bookmark size={15} className="verse-bookmark"/>}</div>)}<div className="sample-notice">{t.notice}</div></div>
+      <div className="tools-row"><button onClick={()=>setSaved(!saved)} className={saved?'tool active':'tool'}><Bookmark/><span>{t.save}</span></button><button onClick={()=>toggleMark(1)} className="tool"><Highlighter/><span>{t.highlight}</span></button><button onClick={()=>setShowNote(true)} className="tool"><NotebookPen/><span>{t.note}</span></button><button onClick={()=>navigator.clipboard?.writeText(verses[0])} className="tool"><Share2/><span>{t.share}</span></button></div>
+      <div className="reading-progress"><div><span>{t.today}</span><strong>{t.minutes}</strong></div><div className="progress"><i/></div></div>
+    </section> : tab==='search' ? <section className="reader"><div className="reader-heading"><div><span className="eyebrow">{t.search}</span><h1>{t.searchTitle}</h1></div></div><input className="search-input" placeholder={t.searchPlaceholder} value={search} onChange={e=>setSearch(e.target.value)}/>{filtered.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setTab('read')}}><BookOpen/><span>{lang==='ko'?b.ko:b.name}<small>{b.en} · {b.chapters} {t.chapter}</small></span><ChevronRight/></button>)}</section> : <section className="reader"><div className="reader-heading"><div><span className="eyebrow">{t.library}</span><h1>{t.tabs[tabIds.indexOf(tab)]}</h1></div></div><div className="empty-state"><div className="empty-icon"><Sparkles/></div><h2>{t.soon}</h2><p>{t.soonText}</p></div></section>}
+    <nav className="bottom-nav">{tabIds.map((id,i)=>{const Icon=navIcons[i];return <button key={id} className={tab===id?'nav-item selected':'nav-item'} onClick={()=>setTab(id)}><Icon size={20}/><span>{t.tabs[i]}</span></button>})}</nav>
+    {showBooks&&<div className="overlay" onClick={()=>setShowBooks(false)}><div className="sheet" onClick={e=>e.stopPropagation()}><div className="sheet-head"><h2>{t.choose}</h2><button className="icon-btn" onClick={()=>setShowBooks(false)}><X/></button></div>{books.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setShowBooks(false)}}><BookOpen/><span>{lang==='ko'?b.ko:b.name}<small>{b.en}</small></span><ChevronRight/></button>)}</div></div>}
+    {showNote&&<div className="overlay" onClick={()=>setShowNote(false)}><div className="sheet note-sheet" onClick={e=>e.stopPropagation()}><div className="sheet-head"><h2>{t.personalNote}</h2><button className="icon-btn" onClick={()=>setShowNote(false)}><X/></button></div><textarea value={note} onChange={e=>setNote(e.target.value)} placeholder={t.writeNote}/><button className="primary-btn" onClick={()=>setShowNote(false)}><Check size={17}/> {t.keep}</button></div></div>}
   </main>
 }
