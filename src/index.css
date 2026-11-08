@@ -619,3 +619,25 @@ body{overflow-x:hidden;background:#fff}
   .reader-topbar .top-actions .icon-btn svg{width:19px;height:19px}
   .reader-topbar .scripture-title-button{font-size:clamp(18px,5.8vw,21px)}
 }
+
+
+/* Focus mode: remove floating action bubbles and quiet the navigation */
+.floating-reader-tools{display:none!important}
+.verse.verse-selected{box-shadow:none!important}
+.bottom-nav{
+  height:calc(58px + env(safe-area-inset-bottom));
+  padding:5px 10px max(5px,env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.97);
+  border-top:1px solid #eceef1;
+  box-shadow:0 -3px 12px rgba(30,42,58,.045);
+  backdrop-filter:blur(12px);
+}
+.nav-item{
+  gap:3px;
+  color:#8b929c;
+  font-size:10px;
+}
+.nav-item svg{width:21px;height:21px;stroke-width:1.6}
+.nav-item.selected{color:#52677f}
+.app{padding-bottom:calc(62px + env(safe-area-inset-bottom))}
+.reader{padding-bottom:calc(80px + env(safe-area-inset-bottom))}
