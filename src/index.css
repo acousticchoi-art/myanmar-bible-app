@@ -716,3 +716,48 @@ body{overflow-x:hidden;background:#fff}
 .scroll-to-top:active{transform:scale(.94)}
 .dark .scroll-to-top{background:#d7e2ef;color:#26384d;border-color:#46505e}
 @media(max-width:390px){.scroll-to-top{right:12px;bottom:calc(66px + env(safe-area-inset-bottom) + 10px);width:42px;height:42px}}
+
+
+/* Refined Bible navigator */
+.navigator-overlay{align-items:stretch;padding:0;background:rgba(15,23,42,.48);backdrop-filter:blur(3px)}
+.navigator-modal{background:#f6f8fb;color:#263449}
+.navigator-head{min-height:68px;padding:0 24px;background:#fff;color:#1f2d43;border-bottom:1px solid #e7ebf1;box-shadow:0 2px 10px rgba(24,39,75,.04)}
+.navigator-head h2{font-size:19px;font-weight:750;letter-spacing:-.02em}
+.navigator-head button{color:#68758a;border-radius:12px;transition:background .18s}
+.navigator-head button:hover{background:#f0f3f8}
+.navigator-head svg{width:23px;height:23px}
+.navigator-columns{grid-template-columns:minmax(260px,1.35fr) minmax(170px,.8fr) minmax(170px,.8fr);gap:12px;padding:14px; background:#f6f8fb}
+.navigator-columns section{background:#fff;border:1px solid #e7ebf1;border-radius:14px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#cbd3df transparent}
+.navigator-books,.navigator-chapters{border-right:1px solid #e7ebf1}
+.navigator-section-label{height:42px;padding:12px 15px;background:#f8fafc;color:#65738a;font-size:12px;font-weight:750;letter-spacing:.04em;border-bottom:1px solid #edf0f4}
+.navigator-book{width:calc(100% - 16px);min-height:58px;margin:0 8px;padding:9px 12px;border:0;border-bottom:1px solid #f0f2f5;border-radius:9px;color:#344258;transition:background .15s,color .15s}
+.navigator-book span{font-size:14px;font-weight:650}
+.navigator-book small{font-size:11px;color:#9aa4b2;margin-top:3px}
+.navigator-book:hover{background:#f5f8fc}
+.navigator-book.selected{background:#eaf2ff;color:#1765bd;box-shadow:inset 3px 0 #2878d7}
+.navigator-book.selected small{color:#6f94bf}
+.navigator-number{width:calc(100% - 16px);min-height:46px;margin:3px 8px;padding:8px 12px;justify-content:center;border:1px solid #edf0f4;border-radius:9px;background:#fff;color:#46556b;font-size:14px;font-weight:650;transition:all .15s}
+.navigator-number:hover{border-color:#b9d2f2;background:#f5f9ff}
+.navigator-number.selected{border-color:#2d7bd3;background:#eaf3ff;color:#1765bd;box-shadow:0 0 0 1px rgba(45,123,211,.08)}
+.navigator-current{min-height:72px;padding:10px 24px;background:#fff;border-top:1px solid #e7ebf1;box-shadow:0 -3px 12px rgba(24,39,75,.035)}
+.navigator-current strong{font-size:15px;color:#33445d;font-weight:700}
+.navigator-current button{border-radius:9px;background:#216fc5;padding:11px 18px;font-size:13px;box-shadow:0 2px 5px rgba(33,111,197,.18);transition:background .15s}
+.navigator-current button:hover{background:#185da9}
+@media(max-width:700px){
+ .navigator-head{min-height:58px;padding:0 15px}
+ .navigator-head h2{font-size:16px}
+ .navigator-columns{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr);gap:7px;padding:8px}
+ .navigator-columns section{border-radius:10px}
+ .navigator-section-label{height:38px;padding:11px 8px;font-size:11px}
+ .navigator-book{width:calc(100% - 8px);margin:0 4px;min-height:54px;padding:8px 7px}
+ .navigator-book span{font-size:12px}
+ .navigator-book small{font-size:10px}
+ .navigator-number{width:calc(100% - 8px);margin:3px 4px;min-height:42px;padding:6px 2px;font-size:12px}
+ .navigator-current{min-height:62px;padding:8px 12px}
+ .navigator-current strong{font-size:13px}
+ .navigator-current button{padding:9px 12px;font-size:12px}
+}
+@media(min-width:701px){
+ .navigator-columns{grid-template-columns:minmax(300px,1.25fr) minmax(190px,.75fr) minmax(190px,.75fr)}
+ .navigator-number{font-size:15px}
+}
