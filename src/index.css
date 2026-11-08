@@ -164,104 +164,80 @@
 /* Translation picker modal */
 .version-overlay{
   align-items:center;
-  padding:18px;
+  padding:16px;
   background:rgba(20,24,30,.48);
   backdrop-filter:blur(3px);
 }
 .version-modal{
-  width:min(100%,740px);
-  max-height:min(82vh,760px);
+  width:min(100%,680px);
+  max-height:min(82vh,680px);
   display:flex;
   flex-direction:column;
   overflow:hidden;
-  border-radius:18px;
+  border-radius:16px;
   background:#fff;
   color:#45484d;
-  box-shadow:0 18px 55px rgba(0,0,0,.25);
+  box-shadow:0 18px 55px rgba(0,0,0,.22);
 }
 .version-modal-head{
-  min-height:72px;
-  padding:0 22px 0 26px;
+  min-height:58px;
+  padding:0 16px 0 20px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   background:#858585;
   color:#fff;
 }
-.version-modal-head h2{margin:0;font-size:23px;font-weight:700}
+.version-modal-head h2{margin:0;font-size:19px;font-weight:650}
 .version-modal-head button{
-  width:42px;height:42px;border:0;background:transparent;color:#fff;
+  width:38px;height:38px;border:0;background:transparent;color:#fff;
   display:grid;place-items:center;cursor:pointer
 }
-.version-modal-head svg{width:30px;height:30px;stroke-width:1.4}
-.version-modal-hint{
-  background:#e5eaf0;
-  color:#1679dc;
-  text-align:center;
-  padding:10px 12px;
-  font-size:13px;
-  line-height:1.5;
-}
+.version-modal-head svg{width:25px;height:25px;stroke-width:1.5}
 .version-columns{
   display:grid;
   grid-template-columns:1fr 1fr;
-  min-height:220px;
   overflow:auto;
 }
-.version-column{padding:12px 17px 20px;min-width:0}
-.version-column+ .version-column{border-left:1px solid #d9dadd}
+.version-column{padding:10px 14px 14px;min-width:0}
+.version-column+ .version-column{border-left:1px solid #e5e7eb}
 .version-column h3{
-  margin:4px 0 8px;
+  margin:3px 0 7px;
   font-size:12px;
-  color:#92969c;
-  font-weight:600;
+  color:#858b94;
+  font-weight:650;
 }
 .version-option{
   width:100%;
-  min-height:68px;
+  min-height:54px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:8px;
-  padding:12px 8px;
+  padding:9px 7px;
   border:0;
-  border-bottom:1px solid #e3e4e6;
+  border-bottom:1px solid #eceef1;
   background:#fff;
   color:#55595e;
   font:inherit;
-  font-size:17px;
-  font-weight:600;
+  font-size:14px;
+  font-weight:550;
   text-align:left;
   cursor:pointer;
 }
-.version-option svg{color:#078cf0;flex-shrink:0;stroke-width:3}
-.version-option.chosen{color:#34383d}
+.version-option svg{color:#2784df;flex-shrink:0;stroke-width:2.7}
+.version-option.chosen{color:#26384b}
 .version-option:active{background:#f4f7fa}
-.version-modal-foot{
-  min-height:62px;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  padding:10px 20px;
-  background:#f1f2f4;
-  border-top:1px solid #e1e2e4;
-}
-.version-modal-foot button{
-  border:0;border-radius:9px;background:#1b83df;color:#fff;
-  padding:10px 15px;font:inherit;font-size:13px;font-weight:600;cursor:pointer
-}
 @media(max-width:480px){
- .version-overlay{padding:12px}
- .version-modal{max-height:82vh;border-radius:15px}
- .version-modal-head{min-height:62px;padding:0 15px 0 19px}
- .version-modal-head h2{font-size:20px}
- .version-modal-hint{font-size:12px;padding:9px 8px}
- .version-column{padding:9px 10px 14px}
- .version-option{min-height:59px;font-size:15px;padding:10px 6px}
- .version-modal-foot{min-height:58px;padding:9px 13px}
+ .version-overlay{padding:10px}
+ .version-modal{max-height:78vh;border-radius:14px}
+ .version-modal-head{min-height:54px;padding:0 12px 0 16px}
+ .version-modal-head h2{font-size:17px}
+ .version-column{padding:8px 9px 11px}
+ .version-column h3{font-size:11px}
+ .version-option{min-height:50px;font-size:13px;padding:8px 5px}
 }
-
-
+ 
 /* Three-pane passage navigator */
 .scripture-title-button{
   display:block;
