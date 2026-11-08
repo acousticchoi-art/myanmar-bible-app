@@ -22,6 +22,17 @@ const copy = {
   ko: { brand:'미얀마 성경', tagline:'매일 만나는 하나님의 말씀', search:'검색', readEyebrow:'말씀 읽기', readTitle:'성경 읽기', font:'글자 크기', chapter:'장', sample:'샘플 본문', notice:'이 문구는 화면 테스트용 샘플입니다. 정식 성경 본문은 사용 허가를 받은 후 반영합니다.', save:'북마크', highlight:'하이라이트', note:'메모', share:'공유', today:'오늘의 읽기', minutes:'5 / 20분', searchTitle:'성경 검색', searchPlaceholder:'성경 이름 검색...', library:'내 성경 보관함', soon:'곧 제공됩니다', soonText:'이 기능은 다음 개발 단계에서 추가할 예정입니다.', choose:'성경 선택', personalNote:'나의 묵상 메모', writeNote:'말씀을 읽으며 떠오른 생각을 적어보세요...', keep:'저장하기', tabs:['성경','검색','북마크','히스토리'] }
 }
 const navIcons = [BookOpen, Search, Bookmark, CalendarDays]
+const getLastReading = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('bible-last-reading') || 'null')
+    const savedBook = books.find(item => item.code === saved?.book) || books[0]
+    const savedChapter = Math.min(savedBook.chapters, Math.max(1, Number(saved?.chapter) || 1))
+    const savedVerse = Math.max(1, Number(saved?.verse) || 1)
+    return { book: savedBook, chapter: savedChapter, verse: savedVerse }
+  } catch {
+    return { book: books[0], chapter: 1, verse: 1 }
+  }
+}
 export default function App() {
   const [lang,setLang]=useState('my')
   const [burmeseBook,setBurmeseBook]=useState(null), [kjvBook,setKjvBook]=useState(null), [nivBook,setNivBook]=useState(null), [koreanBook,setKoreanBook]=useState(null)
@@ -35,7 +46,7 @@ export default function App() {
   const [primaryVersion,setPrimaryVersion]=useState(()=>['my','kjv','niv','ko'].includes(localStorage.getItem('bible-primary-version'))?localStorage.getItem('bible-primary-version'):'my')
   const [secondaryVersion,setSecondaryVersion]=useState(()=>['my','kjv','niv','ko'].includes(localStorage.getItem('bible-secondary-version'))?localStorage.getItem('bible-secondary-version'):'niv')
   const t=copy[lang]
-  const [tab,setTab]=useState('read'), [book,setBook]=useState(books[0]), [chapter,setChapter]=useState(1), [fontSize,setFontSize]=useState(()=>Number(localStorage.getItem('bible-font-size')||21)), [dark,setDark]=useState(false), [marked,setMarked]=useState(()=>JSON.parse(localStorage.getItem('bible-highlights')||'[]')), [selectedVerse,setSelectedVerse]=useState(1), [hasSelectedVerse,setHasSelectedVerse]=useState(false), [showScrollTop,setShowScrollTop]=useState(false), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [showBooks,setShowBooks]=useState(false), [showVersions,setShowVersions]=useState(false), [showNavigator,setShowNavigator]=useState(false), [navChapter,setNavChapter]=useState(1), [search,setSearch]=useState(''), [bookmarks,setBookmarks]=useState(()=>JSON.parse(localStorage.getItem('bible-bookmarks')||'[]')), [history,setHistory]=useState(()=>JSON.parse(localStorage.getItem('bible-history')||'[]'))
+  const [tab,setTab]=useState('read'), [book,setBook]=useState(()=>getLastReading().book), [chapter,setChapter]=useState(()=>getLastReading().chapter), [fontSize,setFontSize]=useState(()=>Number(localStorage.getItem('bible-font-size')||21)), [dark,setDark]=useState(false), [marked,setMarked]=useState(()=>JSON.parse(localStorage.getItem('bible-highlights')||'[]')), [selectedVerse,setSelectedVerse]=useState(()=>getLastReading().verse), [hasSelectedVerse,setHasSelectedVerse]=useState(false), [showScrollTop,setShowScrollTop]=useState(false), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [showBooks,setShowBooks]=useState(false), [showVersions,setShowVersions]=useState(false), [showNavigator,setShowNavigator]=useState(false), [navChapter,setNavChapter]=useState(1), [search,setSearch]=useState(''), [bookmarks,setBookmarks]=useState(()=>JSON.parse(localStorage.getItem('bible-bookmarks')||'[]')), [history,setHistory]=useState(()=>JSON.parse(localStorage.getItem('bible-history')||'[]'))
   const versionNames={my:'Judson Burmese',kjv:'King James Version (KJV)',niv:'New International Version (NIV)',ko:'개역개정'}
   useEffect(()=>{setSelectedVerse(1);setHasSelectedVerse(false);setShowCommentary(false)},[book,chapter])
   useEffect(()=>{const onScroll=()=>setShowScrollTop(window.scrollY>420);window.addEventListener('scroll',onScroll,{passive:true});onScroll();return()=>window.removeEventListener('scroll',onScroll)},[])
@@ -63,6 +74,7 @@ export default function App() {
   const changeFont=(n)=>{setFontSize(n);localStorage.setItem('bible-font-size',String(n))}
   const filtered=useMemo(()=>books.filter(b=>(b.en+b.ko+b.code).toLowerCase().includes(search.toLowerCase())),[search])
   const changeLang=(value)=>{setLang(value);localStorage.setItem('bible-language',value)}
+  useEffect(()=>{localStorage.setItem('bible-last-reading',JSON.stringify({book:book.code,chapter,verse:selectedVerse}))},[book,chapter,selectedVerse])
   useEffect(()=>{const item={book:book.code,bookName:bookTitle,chapter};setHistory(v=>{const next=[item,...v.filter(x=>x.book!==item.book||x.chapter!==item.chapter)].slice(0,40);localStorage.setItem('bible-history',JSON.stringify(next));return next})},[book,chapter])
   const tabIds=['read','search','saved','history']
   return <main className={dark?'app dark':'app'} lang={lang==='ko'?'ko':'my'}>
