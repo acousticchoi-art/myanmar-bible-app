@@ -504,47 +504,6 @@ export async function loadBurmeseBook(book) {
 }
 
 
-// World English Bible (WEBP) — public-domain text.
-// Source edition: eBible.org / HelloAOLab bible-api mirror.
-const ENGLISH_BASE = "https://raw.githubusercontent.com/HelloAOLab/bible-api/main/bible/engwebp/";
-
-export async function loadEnglishBook(book) {
-  const file = book.file.replace("myajvb", "engwebp");
-  const response = await fetch(ENGLISH_BASE + file);
-  if (!response.ok) throw new Error("Unable to load WEB book: " + book.code);
-  const source = await response.text();
-  const chapterMap = {};
-  let currentChapter = 0;
-  let englishName = book.en;
-
-  const clean = (value) => value
-    .replace(/\\w\s+([^|]+)\|[^\\]*?\\w\*/g, "$1")
-    .replace(/\\[a-zA-Z0-9]+\*?/g, " ")
-    .replace(/\|strong="[^"]*"/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  for (const line of source.split(/\r?\n/)) {
-    const heading = line.match(/^\\h\s+(.+)/);
-    if (heading) englishName = clean(heading[1]);
-    const chapterMatch = line.match(/^\\c\s+(\d+)/);
-    if (chapterMatch) {
-      currentChapter = Number(chapterMatch[1]);
-      chapterMap[currentChapter] = [];
-      continue;
-    }
-    const verseMatch = line.match(/^\\v\s+(\d+[a-z]?)\s+(.+)/);
-    if (verseMatch && currentChapter) {
-      chapterMap[currentChapter].push({
-        number: Number.parseInt(verseMatch[1], 10),
-        text: clean(verseMatch[2])
-      });
-    }
-  }
-  return { bookCode: book.code, bookName: englishName, chapters: chapterMap };
-}
-
-
 // King James Version (1769) — Public Domain / Unlicense.
 // Source: farskipper/kjv, json/verses-1769.json.
 const KJV_URL = "https://raw.githubusercontent.com/farskipper/kjv/master/json/verses-1769.json";
