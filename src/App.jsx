@@ -29,7 +29,7 @@ export default function App() {
   const [bibleError,setBibleError]=useState('')
   const [compare,setCompare]=useState(()=>localStorage.getItem('bible-compare') === 'true')
   const [primaryVersion,setPrimaryVersion]=useState(()=>['my','kjv','niv'].includes(localStorage.getItem('bible-primary-version'))?localStorage.getItem('bible-primary-version'):'my')
-  const [secondaryVersion,setSecondaryVersion]=useState(()=>['my','kjv','niv'].includes(localStorage.getItem('bible-secondary-version'))?localStorage.getItem('bible-secondary-version'):'en')
+  const [secondaryVersion,setSecondaryVersion]=useState(()=>['my','kjv','niv'].includes(localStorage.getItem('bible-secondary-version'))?localStorage.getItem('bible-secondary-version'):'niv')
   const t=copy[lang]
   const [tab,setTab]=useState('read'), [book,setBook]=useState(books[0]), [chapter,setChapter]=useState(1), [fontSize,setFontSize]=useState(()=>Number(localStorage.getItem('bible-font-size')||21)), [dark,setDark]=useState(false), [marked,setMarked]=useState(()=>JSON.parse(localStorage.getItem('bible-highlights')||'[]')), [selectedVerse,setSelectedVerse]=useState(1), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [showBooks,setShowBooks]=useState(false), [showVersions,setShowVersions]=useState(false), [showNavigator,setShowNavigator]=useState(false), [navChapter,setNavChapter]=useState(1), [search,setSearch]=useState(''), [bookmarks,setBookmarks]=useState(()=>JSON.parse(localStorage.getItem('bible-bookmarks')||'[]')), [history,setHistory]=useState(()=>JSON.parse(localStorage.getItem('bible-history')||'[]'))
   const versionNames={my:'Judson Burmese',kjv:'King James Version (KJV)',niv:'New International Version (NIV)'}
