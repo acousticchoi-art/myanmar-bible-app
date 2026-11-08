@@ -1,4 +1,4 @@
-// Burmese Judson 1835 Bible metadata and USFM loader.
+// Burmese Judson Bible (1840 edition) metadata and USFM loader.
 // Source: digitalbiblesociety/Archive-Bible-Burmese (Unlicense).
 export const books = [
   {
