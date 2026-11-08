@@ -643,3 +643,35 @@ body{overflow-x:hidden;background:#fff}
 .commentary-sources span{font-weight:650}
 .commentary-sources small{font-size:10px;color:#8993a1}
 @media(max-width:390px){.commentary-sheet{padding-left:15px;padding-right:15px}.commentary-tabs{gap:3px}.commentary-tabs button{font-size:10px;padding:6px 2px}.commentary-content p,.commentary-content li{font-size:14px}}
+
+
+/* Commentary panel usability refinements */
+.commentary-sheet{display:flex;flex-direction:column;max-height:min(88dvh,820px);padding-top:12px}
+.commentary-grabber{width:38px;height:4px;margin:0 auto 13px;border-radius:99px;background:#d6dbe2;flex:0 0 auto}
+.commentary-head{flex:0 0 auto;gap:14px}
+.commentary-heading-copy{min-width:0;flex:1}
+.commentary-verse-preview{margin-top:9px;padding:9px 11px;border-radius:10px;background:#f5f7fa;color:#657184;font-size:12px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.commentary-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #e8ebef;flex:0 0 auto}
+.commentary-font-tools{display:flex;align-items:center;gap:8px;color:#778294;font-size:11px}
+.commentary-font-tools button,.commentary-language{min-width:34px;height:32px;padding:0 8px;border:1px solid #e1e6ed;border-radius:9px;background:#fff;color:#4b5c70;font:inherit;font-weight:700}
+.commentary-font-tools strong{min-width:16px;text-align:center;color:#667386;font-size:11px}
+.commentary-language{display:flex;align-items:center;justify-content:center;gap:6px;color:#31577f;font-size:11px}
+.commentary-tabs{display:flex;gap:6px;overflow-x:auto;flex:0 0 auto;scrollbar-width:none}
+.commentary-tabs::-webkit-scrollbar{display:none}
+.commentary-tabs button{flex:1 0 auto;min-width:76px;padding:7px 9px;font-size:12px}
+.commentary-content{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;min-height:120px}
+.commentary-content p,.commentary-content li{font-size:1em;line-height:1.9}
+.commentary-content h3{font-size:1.15em}
+.commentary-sources{flex:0 0 auto}
+.dark .commentary-sheet{background:#22262c;color:#edf0f4}
+.dark .commentary-head{border-color:#3a414b}
+.dark .commentary-head p,.dark .commentary-content p,.dark .commentary-content li{color:#d0d6df}
+.dark .commentary-verse-preview,.dark .commentary-sources{background:#2d333c;color:#c0cad7}
+.dark .commentary-tabs{border-color:#3a414b}
+.dark .commentary-tabs button,.dark .commentary-font-tools button,.dark .commentary-language{background:#292f38;border-color:#414a57;color:#dce4ee}
+@media(max-width:480px){
+ .commentary-sheet{max-height:90dvh;padding-left:15px;padding-right:15px;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+ .commentary-head h2{font-size:21px}
+ .commentary-verse-preview{font-size:11px}
+ .commentary-tabs button{min-width:70px;font-size:11px}
+}
