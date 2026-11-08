@@ -500,6 +500,21 @@ export async function loadBurmeseBook(book) {
     }
   }
 
+  // The source USFM accidentally merges Numbers 5:3 into verse 2 and
+  // leaves an empty verse 3 marker. Restore the original verse boundary.
+  if (book.code === "NUM" && chapterMap[5]) {
+    const verse2 = chapterMap[5].find(verse => verse.number === 2);
+    if (verse2 && !chapterMap[5].some(verse => verse.number === 3)) {
+      const boundary = verse2.text.indexOf("ဣသရေလ");
+      if (boundary > -1) {
+        const verse3Text = verse2.text.slice(boundary).trim();
+        verse2.text = verse2.text.slice(0, boundary).trim();
+        chapterMap[5].push({ number: 3, text: verse3Text });
+        chapterMap[5].sort((a, b) => a.number - b.number);
+      }
+    }
+  }
+
   return { bookCode: book.code, bookName: burmeseName, chapters: chapterMap };
 }
 
