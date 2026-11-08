@@ -761,3 +761,9 @@ body{overflow-x:hidden;background:#fff}
  .navigator-columns{grid-template-columns:minmax(300px,1.25fr) minmax(190px,.75fr) minmax(190px,.75fr)}
  .navigator-number{font-size:15px}
 }
+
+/* Commentary scope: verse / chapter / book */
+.commentary-scope-switch{display:flex;gap:7px;padding:10px 18px 2px;border-bottom:1px solid #edf0f4}
+.commentary-scope-switch button{flex:1;min-height:37px;border:1px solid #e6eaf0;border-radius:9px;background:#fff;color:#65738a;font-size:12px;font-weight:700;transition:all .15s}
+.commentary-scope-switch button.active{border-color:#c9dcf5;background:#edf5ff;color:#216fc5}
+@media(max-width:520px){.commentary-scope-switch{padding:9px 12px 2px;gap:5px}.commentary-scope-switch button{font-size:11px;min-height:35px}}
