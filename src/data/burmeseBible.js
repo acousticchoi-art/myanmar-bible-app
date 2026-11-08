@@ -564,14 +564,14 @@ export async function loadKJVBook(book) {
   const prefix = book.en + " ";
   for (const [reference, rawText] of Object.entries(allVerses)) {
     if (!reference.startsWith(prefix)) continue;
-    const match = reference.slice(prefix.length).match(/^(\\d+):(\\d+)$/);
+    const match = reference.slice(prefix.length).match(/^(\d+):(\d+)$/);
     if (!match) continue;
     const chapter = Number(match[1]);
     const verse = Number(match[2]);
     if (!chapters[chapter]) chapters[chapter] = [];
     chapters[chapter].push({
       number: verse,
-      text: String(rawText).replace(/^#\\s*/, "").replace(/\\[([^\\]]+)\\]/g, "$1").trim()
+      text: String(rawText).replace(/^#\s*/, "").replace(/\[([^\]]+)\]/g, "$1").trim()
     });
   }
   return { bookCode: book.code, bookName: book.en, chapters };
