@@ -702,3 +702,18 @@ body{overflow-x:hidden;background:#fff}
  .selected-verse-action>button{padding:0 9px;font-size:11px}
  .selected-verse-label strong{font-size:12px}
 }
+
+
+/* Floating back-to-top control */
+.scroll-to-top{
+ position:fixed;z-index:7;right:max(18px,calc((100vw - 560px)/2 + 14px));
+ bottom:calc(142px + env(safe-area-inset-bottom));
+ width:44px;height:44px;display:grid;place-items:center;
+ border:1px solid rgba(255,255,255,.8);border-radius:50%;
+ background:#465d78;color:#fff;box-shadow:0 4px 16px rgba(25,40,60,.22);
+ cursor:pointer;transition:transform .18s ease,opacity .18s ease;
+}
+.scroll-to-top svg{transform:rotate(180deg);stroke-width:2.4}
+.scroll-to-top:active{transform:scale(.94)}
+.dark .scroll-to-top{background:#d7e2ef;color:#26384d;border-color:#46505e}
+@media(max-width:390px){.scroll-to-top{right:14px;bottom:calc(132px + env(safe-area-inset-bottom));width:40px;height:40px}}
