@@ -213,4 +213,66 @@ export const commentarySources = {
       "statusMy": "စာအုပ်အချက်အလက် အတည်ပြုပြီး · အကြောင်းအရာနှိုင်းယှဉ်ရန် ကျန်ရှိ"
     }
   ]
+,
+  "1CH": [
+    {
+      "title": "I Chronicles 1–9: A New Translation with Introduction and Commentary",
+      "author": "Gary N. Knoppers",
+      "series": "Anchor Bible 12",
+      "publisher": "Doubleday",
+      "year": "2003",
+      "roleKo": "아담부터 이스라엘 지파까지의 족보, 본문비평, 역대기 저자의 자료 활용과 역사 서술을 대조",
+      "roleMy": "အာဒံမှ ဣသရေလမျိုးနွယ်စုများအထိ မျိုးရိုးစာရင်း၊ ကျမ်းစာမူကွဲလေ့လာမှုနှင့် ရာဇဝင်ချုပ်ရေးသားသူ၏ ရင်းမြစ်အသုံးပြုပုံကို နှိုင်းယှဉ်ရန်",
+      "url": "https://www.jstor.org/stable/j.ctvsr51k7",
+      "statusKo": "서지·권 범위 확인 · 본문 대조 전",
+      "statusMy": "စာအုပ်အချက်အလက်နှင့် အခန်းအပိုင်း အတည်ပြုပြီး · ကျမ်းပိုဒ်နှိုင်းယှဉ်ရန် ကျန်ရှိ"
+    },
+    {
+      "title": "I Chronicles 10–29: A New Translation with Introduction and Commentary",
+      "author": "Gary N. Knoppers",
+      "series": "Anchor Bible 12A",
+      "publisher": "Doubleday",
+      "year": "2004",
+      "roleKo": "사울의 죽음부터 다윗 통치와 성전 준비까지의 역사·문학·신학적 해석을 대조",
+      "roleMy": "ရှောလုသေဆုံးခြင်းမှ ဒါဝိဒ်၏အုပ်စိုးမှုနှင့် ဗိမာန်တော်ပြင်ဆင်မှုအထိ သမိုင်း၊ စာပေနှင့် ဓမ္မပညာဆိုင်ရာ အနက်ဖွင့်ချက်ကို နှိုင်းယှဉ်ရန်",
+      "statusKo": "서지·권 범위 확인 · 본문 대조 전",
+      "statusMy": "စာအုပ်အချက်အလက်နှင့် အခန်းအပိုင်း အတည်ပြုပြီး · ကျမ်းပိုဒ်နှိုင်းယှဉ်ရန် ကျန်ရှိ"
+    },
+    {
+      "title": "I & II Chronicles: A Commentary",
+      "author": "Sara Japhet",
+      "series": "Old Testament Library",
+      "publisher": "Westminster John Knox Press",
+      "year": "1993",
+      "roleKo": "역대기의 독자적 신학, 포로기 이후 공동체의 정체성, 족보와 왕권 서술을 대조",
+      "roleMy": "ရာဇဝင်ချုပ်ကျမ်း၏ သီးခြားဓမ္မပညာ၊ ပြည်နှင်ခံရပြီးနောက် အသိုင်းအဝိုင်း၏ အမှတ်သညာ၊ မျိုးရိုးစာရင်းနှင့် ဘုရင်အုပ်စိုးမှုဖော်ပြချက်ကို နှိုင်းယှဉ်ရန်",
+      "url": "https://www.denverjournal.denverseminary.edu/the-denver-journal-article/annotated-old-testament-bibliography-2023/",
+      "statusKo": "서지 확인 · 본문 대조 전",
+      "statusMy": "စာအုပ်အချက်အလက် အတည်ပြုပြီး · ကျမ်းပိုဒ်နှိုင်းယှဉ်ရန် ကျန်ရှိ"
+    },
+    {
+      "title": "1 Chronicles: A Commentary",
+      "author": "Ralph W. Klein",
+      "series": "Hermeneia",
+      "publisher": "Fortress Press",
+      "year": "2006",
+      "roleKo": "히브리어 본문, 칠십인역 및 사무엘서와의 본문 관계와 족보 단락을 기술적으로 대조",
+      "roleMy": "ဟေဗြဲကျမ်းစာမူ၊ စက်ပ်တွာဂျင့်နှင့် ရှမွေလကျမ်းတို့၏ ဆက်နွယ်မှု၊ မျိုးရိုးစာရင်းအပိုင်းများကို နည်းပညာပိုင်းအရ နှိုင်းယှဉ်ရန်",
+      "url": "https://www.jstor.org/stable/j.ctvb9366x",
+      "statusKo": "서지 확인 · 본문 대조 전",
+      "statusMy": "စာအုပ်အချက်အလက် အတည်ပြုပြီး · ကျမ်းပိုဒ်နှိုင်းယှဉ်ရန် ကျန်ရှိ"
+    },
+    {
+      "title": "1 Chronicles",
+      "author": "Roddy Braun",
+      "series": "Word Biblical Commentary 14",
+      "publisher": "Word Books",
+      "year": "1986",
+      "roleKo": "본문 구조, 족보의 문학적 기능, 다윗 왕조와 성전 신학을 복음주의 주석 관점에서 대조",
+      "roleMy": "ကျမ်းပိုဒ်ဖွဲ့စည်းပုံ၊ မျိုးရိုးစာရင်း၏ စာပေဆိုင်ရာ အခန်းကဏ္ဍ၊ ဒါဝိဒ်မင်းဆက်နှင့် ဗိမာန်တော်ဓမ္မပညာကို ဧဝံဂေလိအမြင်ဖြင့် နှိုင်းယှဉ်ရန်",
+      "url": "https://denverjournal.denverseminary.edu/the-denver-journal-article/annotated-old-testament-bibliography-2023/",
+      "statusKo": "서지 확인 · 본문 대조 전",
+      "statusMy": "စာအုပ်အချက်အလက် အတည်ပြုပြီး · ကျမ်းပိုဒ်နှိုင်းယှဉ်ရန် ကျန်ရှိ"
+    }
+  ]
 };
