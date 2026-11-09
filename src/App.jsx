@@ -3,8 +3,11 @@ import { books, loadBurmeseBook, loadKJVBook, loadNIVBook } from './data/burmese
 import { loadKoreanBook } from './data/koreanBible'
 import { commentaryData, bookIntroductions, chapterCommentary } from './data/commentary'
 import { bookIntroductions as deuteronomyIntroductions, chapterCommentary as deuteronomyChapters } from './data/deuteronomyCommentary'
+import { bookIntroductions as joshuaIntroductions, chapterCommentary as joshuaChapters } from './data/joshuaCommentary'
 Object.assign(bookIntroductions, deuteronomyIntroductions)
 Object.assign(chapterCommentary, deuteronomyChapters)
+Object.assign(bookIntroductions, joshuaIntroductions)
+Object.assign(chapterCommentary, joshuaChapters)
 import { BookOpen, BookText, Bookmark, Headphones, Home, Search, Highlighter, NotebookPen, Share2, ChevronDown, ChevronLeft, ChevronRight, Type, Sun, Moon, X, Check, CalendarDays, Sparkles, Languages, Columns2 } from 'lucide-react'
 
 const sampleVerses = [
