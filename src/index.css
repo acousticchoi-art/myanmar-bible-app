@@ -803,3 +803,11 @@ body{overflow-x:hidden;background:#fff}
  .commentary-content p{line-height:1.9}
  .commentary-bottom-tools{padding:9px 14px}
 }
+
+/* Commentary bibliography */
+.commentary-source-list>p{line-height:1.7;color:var(--muted,#666)}
+.commentary-source-item{padding:14px 0;border-bottom:1px solid var(--border,#e5e5e5)}
+.commentary-source-item h4{margin:0 0 6px;font-size:1.02em}
+.commentary-source-item p{margin:5px 0;line-height:1.6}
+.commentary-source-item small{display:inline-block;margin-top:4px;color:var(--muted,#777)}
+.commentary-source-item a{color:var(--accent,#c84d78);text-decoration:underline}
