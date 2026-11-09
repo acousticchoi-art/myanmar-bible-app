@@ -1,6 +1,47 @@
 // Bibliography registry for the Bible commentary review.
 // "bibliography" entries are candidate references until passage-level comparison is completed.
 export const commentarySources = {
+  "GEN": [
+    {
+      "title": "The Surety of God's Promises: A Theological Interpretation of Genesis 22",
+      "author": "Stephen D. Campbell",
+      "series": "Biblical Theology Bulletin 49, no. 3",
+      "publisher": "SAGE",
+      "year": "2019",
+      "isbn": "DOI: 10.1177/0146107919852267",
+      "roleKo": "창세기 22장의 아브라함 시험, 약속의 신실성, 대체 제물의 신학적 의미 대조",
+      "roleMy": "ကမ္ဘာဦး ၂၂ ရှိ အာဗြဟံ၏ စမ်းသပ်ခံရခြင်း၊ ကတိတော်၏ သစ္စာတည်ခြင်းနှင့် အစားထိုးယဇ်၏ ဓမ္မအဓိပ္ပာယ်ကို နှိုင်းယှဉ်ရန်",
+      "url": "https://doi.org/10.1177/0146107919852267",
+      "statusKo": "논문 초록 대조 완료 · 창세기 22장",
+      "statusMy": "စာတမ်းအကျဉ်းချုပ် နှိုင်းယှဉ်ပြီး · ကမ္ဘာဦး ၂၂"
+    },
+    {
+      "title": "Isaac and Iphigenia: Portrayals of Child Sacrifice in Israelite and Greek Literature",
+      "author": "Raleigh Heth and T. E. Kelley",
+      "series": "Biblica 102, no. 4, pp. 481–502",
+      "publisher": "Peeters",
+      "year": "2021",
+      "isbn": "DOI: 10.2143/BIB.102.4.3290253",
+      "roleKo": "이삭 결박 사건과 고대 지중해 문헌의 자녀 희생 묘사 및 수용사 비교",
+      "roleMy": "ဣဇာက်ကို ချည်နှောင်ပူဇော်မည့် ဖြစ်ရပ်နှင့် ရှေးခေတ် မြေထဲပင်လယ်ဒေသ စာပေများရှိ သားသမီးယဇ်ပူဇော်မှု ဖော်ပြချက်၊ လက်ခံဖတ်ရှုမှုတို့ကို နှိုင်းယှဉ်ရန်",
+      "url": "https://doi.org/10.2143/BIB.102.4.3290253",
+      "statusKo": "논문 초록 대조 완료 · 창세기 22장",
+      "statusMy": "စာတမ်းအကျဉ်းချုပ် နှိုင်းယှဉ်ပြီး · ကမ္ဘာဦး ၂၂"
+    },
+    {
+      "title": "Child Sacrifice in the Ancient Near and Middle East",
+      "author": "Jason Tatlock",
+      "series": "Oxford Bibliographies in Childhood Studies",
+      "publisher": "Oxford University Press",
+      "year": "2023",
+      "isbn": "DOI: 10.1093/obo/9780199791231-0272",
+      "roleKo": "고대 근동의 인신·자녀 희생 관습에 관한 문헌·고고학적 논의의 개관",
+      "roleMy": "ရှေးခေတ် အရှေ့အနီးဒေသတွင် လူသားနှင့် ကလေးယဇ်ပူဇော်မှု အလေ့အထများဆိုင်ရာ စာပေနှင့် ရှေးဟောင်းသုတေသန ဆွေးနွေးချက်များကို ခြုံငုံလေ့လာရန်",
+      "url": "https://doi.org/10.1093/obo/9780199791231-0272",
+      "statusKo": "서지·개요 대조 완료 · 창세기 22장 역사적 배경",
+      "statusMy": "စာအုပ်အချက်အလက်နှင့် ခြုံငုံဖော်ပြချက် နှိုင်းယှဉ်ပြီး · ကမ္ဘာဦး ၂၂ သမိုင်းနောက်ခံ"
+    }
+  ],
   "2KI": [
     {
       "title": "Taking Calculated Risks: The Story of the Cannibal Mothers (2 Kings 6:24–7:20)",
