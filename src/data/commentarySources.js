@@ -68,6 +68,45 @@ export const commentarySources = {
       "statusMy": "အကျဉ်းချုပ်နှင့် စာအုပ်အချက်အလက် နှိုင်းယှဉ်ပြီး · ဓမ္မရာဇဝင်စတုတ္ထစောင် ၂၄"
     },
     {
+      "title": "The Curious Incident of the Boys and the Bears: 2 Kings 2 and the Prophetic Authority of Elisha",
+      "author": "Brian P. Irwin",
+      "series": "Tyndale Bulletin 67, no. 1, pp. 23–35",
+      "publisher": "Tyndale House",
+      "year": "2016",
+      "isbn": "DOI: 10.53751/001c.29406",
+      "roleKo": "2열왕기 2장의 갑절의 몫과 벧엘 사건, 언약 저주 및 선지자 권위 해석 대조",
+      "roleMy": "ဓမ္မရာဇဝင်စတုတ္ထစောင် ၂ ရှိ နှစ်ဆသောအပိုင်း၊ ဗေသလဖြစ်ရပ်၊ ပဋိညာဉ်ကျိန်ခြင်းနှင့် ပရောဖက်၏ အခွင့်အာဏာကို နှိုင်းယှဉ်ရန်",
+      "url": "https://www.tyndalebulletin.org/article/29406-the-curious-incident-of-the-boys-and-the-bears-2-kings-2-and-the-prophetic-authority-of-elisha",
+      "statusKo": "논문 초록·본문 주요 논지 대조 완료 · 2열왕기 2:19–25",
+      "statusMy": "စာတမ်းအကျဉ်းချုပ်နှင့် အဓိကအဆိုများ နှိုင်းယှဉ်ပြီး · ဓမ္မရာဇဝင်စတုတ္ထစောင် ၂:၁၉–၂၅"
+    },
+    {
+      "title": "What Do the Mesha Stele and 2 Kings 3 Have in Common?",
+      "author": "Adam Mackerle and Veronika Kučerová",
+      "series": "Studia theologica 13, no. 4, pp. 1–24",
+      "publisher": "Palacký University Olomouc",
+      "year": "2011",
+      "isbn": "ISSN: 1212-8570",
+      "roleKo": "메사 비문과 열왕기하 3장의 장르·역사 서술 차이 및 신적 행위의 주제 대조",
+      "roleMy": "မေရှာကျောက်စာနှင့် ဓမ္မရာဇဝင်စတုတ္ထစောင် ၃ တို့၏ စာပေအမျိုးအစား၊ သမိုင်းဖော်ပြပုံ ကွာခြားချက်နှင့် ဘုရားသခင်၏ လုပ်ဆောင်မှုကို နှိုင်းယှဉ်ရန်",
+      "url": "https://www.ceeol.com/search/article-detail?id=43487",
+      "statusKo": "초록 대조 완료 · 2열왕기 3장과 메사 비문 비교",
+      "statusMy": "အကျဉ်းချုပ် နှိုင်းယှဉ်ပြီး · ဓမ္မရာဇဝင်စတုတ္ထစောင် ၃ နှင့် မေရှာကျောက်စာ"
+    },
+    {
+      "title": "An Intertextual Analysis of Jehu’s Violence in Kings and Chronicles (2 Kgs 9–10 and 2 Chr 21–24)",
+      "author": "Itzhak Amar",
+      "series": "Scandinavian Journal of the Old Testament 37, no. 2, pp. 210–229",
+      "publisher": "Taylor & Francis",
+      "year": "2023",
+      "isbn": "DOI: 10.1080/09018328.2023.2267880",
+      "roleKo": "예후의 폭력과 열왕기·역대기의 상호본문성 및 서술 차이 대조",
+      "roleMy": "ယေဟု၏ အကြမ်းဖက်မှုနှင့် ဓမ္မရာဇဝင်၊ ရာဇဝင်ချုပ်ကျမ်းတို့၏ အပြန်အလှန်ကျမ်းပိုဒ်ဆက်စပ်မှု၊ ဇာတ်ကြောင်းကွာခြားချက်ကို နှိုင်းယှဉ်ရန်",
+      "url": "https://doi.org/10.1080/09018328.2023.2267880",
+      "statusKo": "초록 대조 완료 · 2열왕기 9–10장과 역대하 21–24장",
+      "statusMy": "အကျဉ်းချုပ် နှိုင်းယှဉ်ပြီး · ဓမ္မရာဇဝင်စတုတ္ထစောင် ၉–၁၀ နှင့် ရာဇဝင်ချုပ်ဒုတိယစောင် ၂၁–၂၄"
+    },
+    {
       "title": "2 Kings",
       "author": "T. R. Hobbs",
       "series": "Word Biblical Commentary, Vol. 13",
