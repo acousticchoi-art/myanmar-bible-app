@@ -7,6 +7,7 @@ import { bookIntroductions as joshuaIntroductions, chapterCommentary as joshuaCh
 import { bookIntroductions as judgesIntroductions, chapterCommentary as judgesChapters } from './data/judgesCommentary'
 import { bookIntroductions as ruthIntroductions, chapterCommentary as ruthChapters } from './data/ruthCommentary'
 import { bookIntroductions as samuelIntroductions, chapterCommentary as samuelChapters } from './data/1samuelCommentary'
+import { bookIntroductions as samuel2Introductions, chapterCommentary as samuel2Chapters } from './data/2samuelCommentary'
 Object.assign(bookIntroductions, deuteronomyIntroductions)
 Object.assign(chapterCommentary, deuteronomyChapters)
 Object.assign(bookIntroductions, joshuaIntroductions)
@@ -17,6 +18,8 @@ Object.assign(bookIntroductions, ruthIntroductions)
 Object.assign(chapterCommentary, ruthChapters)
 Object.assign(bookIntroductions, samuelIntroductions)
 Object.assign(chapterCommentary, samuelChapters)
+Object.assign(bookIntroductions, samuel2Introductions)
+Object.assign(chapterCommentary, samuel2Chapters)
 import { BookOpen, BookText, Bookmark, Headphones, Home, Search, Highlighter, NotebookPen, Share2, ChevronDown, ChevronLeft, ChevronRight, Type, Sun, Moon, X, Check, CalendarDays, Sparkles, Languages, Columns2 } from 'lucide-react'
 
 const sampleVerses = [
