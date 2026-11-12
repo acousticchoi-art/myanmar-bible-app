@@ -811,3 +811,15 @@ body{overflow-x:hidden;background:#fff}
 .commentary-source-item p{margin:5px 0;line-height:1.6}
 .commentary-source-item small{display:inline-block;margin-top:4px;color:var(--muted,#777)}
 .commentary-source-item a{color:var(--accent,#c84d78);text-decoration:underline}
+
+
+/* Keep the Bible reader header visible while the scripture scrolls */
+.reader-topbar{
+  position:sticky;
+  top:0;
+  z-index:8;
+  isolation:isolate;
+  width:100%;
+  background:linear-gradient(115deg,#626b78 0%,#465365 100%);
+  box-shadow:0 5px 18px rgba(28,42,60,.16);
+}
