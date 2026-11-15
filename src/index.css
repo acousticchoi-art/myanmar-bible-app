@@ -619,6 +619,13 @@ body{overflow-x:hidden;background:#fff}
 .reader{padding-bottom:calc(80px + env(safe-area-inset-bottom))}
 
 
+
+/* Search page return-to-reader control */
+.search-page-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.search-back-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:0 13px;border:1px solid #dce3ec;border-radius:12px;background:#f3f6fa;color:#38516f;font:inherit;font-size:13px;font-weight:650;white-space:nowrap;cursor:pointer}
+.search-back-button svg{flex:0 0 auto}
+@media(max-width:390px){.search-back-button{min-height:40px;padding:0 10px;font-size:12px}}
+
 /* Bible commentary panel */
 .commentary-overlay{align-items:flex-end;padding:0;background:rgba(15,22,32,.48);backdrop-filter:blur(3px)}
 .commentary-sheet{width:min(100%,760px);max-height:86dvh;overflow:auto;overscroll-behavior:contain;background:#fff;color:#30343a;border-radius:22px 22px 0 0;padding:22px 20px max(24px,env(safe-area-inset-bottom));box-shadow:0 -8px 35px rgba(20,30,45,.16)}
