@@ -838,3 +838,33 @@ body{overflow-x:hidden;background:#fff}
   .reader-topbar{padding-top:calc(34px + env(safe-area-inset-top))!important}
   .app{padding-top:calc(132px + env(safe-area-inset-top))!important}
 }
+
+/* Mobile commentary: floating card above the fixed Bible reader header */
+.commentary-overlay{
+  z-index:60!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 12px)!important;
+  background:rgba(15,22,32,.48);
+}
+.commentary-sheet{
+  width:min(100%,820px)!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px)!important;
+  border-radius:20px!important;
+  overflow-y:auto!important;
+  box-shadow:0 16px 48px rgba(12,20,32,.24)!important;
+  padding-bottom:max(12px,env(safe-area-inset-bottom))!important;
+}
+.commentary-clean-head{top:0!important;padding:14px 16px!important;border-radius:20px 20px 0 0}
+.commentary-scope-switch{top:64px!important;padding:9px 12px!important}
+.commentary-tabs{top:112px!important;padding:8px 12px!important}
+.commentary-content{padding:20px 17px 26px!important}
+.commentary-bottom-tools{bottom:0!important;padding:9px 12px!important;border-radius:0 0 20px 20px}
+@media(min-width:700px){
+ .commentary-overlay{padding:24px!important}
+ .commentary-sheet{max-height:min(88dvh,820px)!important}
+ .commentary-clean-head{padding:18px 28px!important}
+ .commentary-scope-switch,.commentary-tabs,.commentary-bottom-tools{padding-left:28px!important;padding-right:28px!important}
+}
