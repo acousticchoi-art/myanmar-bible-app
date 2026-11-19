@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "Kyanza Bible · ကျမ်းစာ",
+  "short_name": "Kyanza",
+  "description": "Read, compare Bible translations, and study the Word of God.",
+  "lang": "my",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#F4EEE4",
+  "theme_color": "#F4EEE4",
+  "icons": [
+    {
+      "src": "/kyanza-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
