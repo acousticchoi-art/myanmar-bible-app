@@ -914,3 +914,8 @@ body{overflow-x:hidden;background:#fff}
 .copy-entry-float:active{transform:translateX(-50%) scale(.97)}
 .copy-selection-bar{bottom:calc(72px + env(safe-area-inset-bottom))!important}
 .dark .copy-entry-float{background:rgba(39,45,54,.98);border-color:#46505e;color:#e2ebf5}
+
+/* Interface language selector in the upper-right */
+.language-switch{height:34px;min-width:52px;padding:0 9px;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:rgba(255,255,255,.13);color:#fff;font-size:12px;font-weight:750;white-space:nowrap;display:flex;align-items:center;justify-content:center}
+.language-switch:active{transform:scale(.96)}
+@media(max-width:390px){.language-switch{height:31px;min-width:46px;padding:0 6px;font-size:11px}}
