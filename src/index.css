@@ -940,3 +940,58 @@ body{overflow-x:hidden;background:#fff}
 .dark .font-size-controls .font-reset{background:#38414d;color:#c3cfdd}
 .dark .font-preview{background:#34302b;color:#f0e6d8}
 .dark .font-preview-label,.dark .font-preview-caption{color:#aeb8c6}
+
+
+/* Clear, polished menu pages and a visible route back to Scripture */
+.menu-page-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 2px 20px;margin-bottom:10px}
+.menu-page-heading h1{margin:3px 0 0;font-size:25px;line-height:1.25;letter-spacing:-.035em;color:var(--text,#2f3b4d)}
+.menu-eyebrow{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#9a8a75}
+.menu-return-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 14px;border:1px solid #e4e8ed;border-radius:13px;background:#fff;color:#425c7b;font-size:12px;font-weight:750;white-space:nowrap;box-shadow:0 2px 5px rgba(28,44,64,.04);transition:all .16s}
+.menu-return-button:active{transform:scale(.97);background:#f2f6fb}
+.options-page{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.options-page-title{margin-bottom:12px}
+.options-card{padding:19px;border-radius:20px;border:1px solid #e8e3da;background:linear-gradient(160deg,#fff 0%,#fbf8f3 100%);box-shadow:0 5px 22px rgba(54,43,30,.055)}
+.options-card-top{display:flex;align-items:center;gap:12px;margin-bottom:19px}
+.options-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:#f0e8dc;color:#8b6b46}
+.options-section-title{margin:0 0 4px;color:#3b4859;font-size:15px;font-weight:800}
+.options-card-top p{margin:0;color:#8792a0;font-size:11px;line-height:1.5}
+.font-size-controls{gap:9px;padding:5px;border-radius:15px;background:#f0f2f5}
+.font-size-controls>button:not(.font-reset){height:46px;width:48px;background:#fff;border-color:#e4e8ed;border-radius:12px;box-shadow:0 1px 3px rgba(20,30,45,.04)}
+.font-size-current strong{font-size:24px;color:#344b66}
+.font-size-controls .font-reset{height:39px;padding:0 13px;background:#e2e7ed;color:#596b80;border-radius:11px}
+.font-preview-label{margin:21px 0 9px;color:#9a8a75;font-size:10px;letter-spacing:.08em}
+.font-preview{min-height:82px;align-items:flex-start;padding:17px 15px;background:#f3ece1;border:1px solid #ebe2d4;border-radius:14px;color:#55432f;line-height:1.8;word-break:normal}
+.font-preview-verse{font-size:11px!important;color:#a78a62!important;min-width:18px}
+.font-preview-caption{margin-top:10px;font-size:11px;color:#9a9389;line-height:1.6}
+.options-group{margin-top:19px;padding:8px 13px 12px;background:var(--surface,#fff);border:1px solid var(--line,#e8e8e8);border-radius:18px;box-shadow:0 3px 14px rgba(40,50,65,.035)}
+.options-group-heading{padding:9px 3px 11px;color:#9a8a75;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.option-row{width:100%;display:flex;align-items:center;gap:12px;min-height:66px;padding:10px 3px;border:0;border-top:1px solid var(--line,#edf0f3);background:transparent;color:var(--text,#334155);text-align:left}
+.option-row-icon{flex:0 0 37px;width:37px;height:37px;display:grid;place-items:center;border-radius:12px;background:#f1f4f7;color:#64788f}
+.option-row-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.option-row-copy strong{font-size:13px;font-weight:750}
+.option-row-copy small{font-size:10px;color:var(--muted,#8b96a5);line-height:1.4}
+.option-status{padding:6px 10px;border-radius:9px;background:#f0f2f5;color:#758195;font-size:10px;font-weight:750}
+.option-status.active{background:#e9edf4;color:#526983}
+.option-chevron{font-size:22px;color:#9aa5b2;padding:0 6px}
+.dark .menu-page-heading h1{color:#edf0f4}
+.dark .menu-return-button{background:#292f38;border-color:#414a57;color:#dce4ee}
+.dark .options-card{background:linear-gradient(160deg,#292f38,#252a31);border-color:#414a57}
+.dark .options-icon{background:#3c3a34;color:#d2b68c}
+.dark .options-section-title{color:#e3eaf2}
+.dark .font-size-controls{background:#252a31}
+.dark .font-size-controls>button:not(.font-reset){background:#343c47;border-color:#46515f;color:#e4edf7}
+.dark .font-size-current strong{color:#e4edf7}
+.dark .font-preview{background:#39332c;border-color:#51473a;color:#f0e6d8}
+.dark .options-group{background:#292f38;border-color:#414a57}
+.dark .option-row{border-color:#414a57;color:#e3eaf2}
+.dark .option-row-icon,.dark .option-status{background:#343c47;color:#c5d1df}
+@media(max-width:420px){
+ .menu-page-heading{align-items:flex-start;padding-top:4px;gap:8px}
+ .menu-page-heading h1{font-size:22px}
+ .menu-return-button{min-height:38px;padding:0 10px;font-size:11px;gap:6px}
+ .options-card{padding:15px;border-radius:17px}
+ .font-size-controls{gap:6px}
+ .font-size-controls>button:not(.font-reset){width:43px;height:43px}
+ .font-size-controls .font-reset{padding:0 9px;font-size:10px}
+ .options-group{margin-top:14px}
+}
