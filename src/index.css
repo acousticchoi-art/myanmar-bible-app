@@ -868,3 +868,16 @@ body{overflow-x:hidden;background:#fff}
  .commentary-clean-head{padding:18px 28px!important}
  .commentary-scope-switch,.commentary-tabs,.commentary-bottom-tools{padding-left:28px!important;padding-right:28px!important}
 }
+
+/* Kyanza Bible launch screen */
+.kyanza-splash{
+  position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:#F4EEE4;color:#5B4632;
+  animation:kyanza-splash-out .35s ease 1.05s forwards;
+}
+.kyanza-splash img{width:104px;height:104px;object-fit:contain;margin-bottom:20px;filter:drop-shadow(0 8px 18px rgba(91,70,50,.10));}
+.kyanza-splash-name{font-family:Inter,system-ui,sans-serif;font-size:30px;font-weight:700;letter-spacing:.13em;}
+.kyanza-splash-myanmar{font-family:Padauk,system-ui,sans-serif;font-size:23px;margin-top:5px;color:#8B6B46;}
+.kyanza-splash-tagline{font-family:Inter,system-ui,sans-serif;font-size:10px;letter-spacing:.22em;margin-top:18px;color:#A58B6B;}
+@keyframes kyanza-splash-out{to{opacity:0;visibility:hidden;pointer-events:none}}
+@media(prefers-reduced-motion:reduce){.kyanza-splash{animation-duration:.01ms;animation-delay:.01ms}}
