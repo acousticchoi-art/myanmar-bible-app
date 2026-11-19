@@ -908,3 +908,9 @@ body{overflow-x:hidden;background:#fff}
 
 .copy-version-hint{margin:0;padding:12px 18px 4px;color:#7a8798;font-size:12px;line-height:1.55}
 .copy-confirm:disabled{opacity:.4;cursor:not-allowed}
+
+/* Copy selection entry and actions float at the bottom, not in the header. */
+.copy-entry-float{position:fixed;z-index:65;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:12px 17px;border:1px solid #dbe5f1;border-radius:999px;background:rgba(255,255,255,.97);color:#31577f;font-size:13px;font-weight:700;box-shadow:0 5px 22px rgba(25,40,60,.16);backdrop-filter:blur(12px);white-space:nowrap}
+.copy-entry-float:active{transform:translateX(-50%) scale(.97)}
+.copy-selection-bar{bottom:calc(72px + env(safe-area-inset-bottom))!important}
+.dark .copy-entry-float{background:rgba(39,45,54,.98);border-color:#46505e;color:#e2ebf5}
