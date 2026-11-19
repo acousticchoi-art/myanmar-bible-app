@@ -919,3 +919,24 @@ body{overflow-x:hidden;background:#fff}
 .language-switch{height:34px;min-width:52px;padding:0 9px;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:rgba(255,255,255,.13);color:#fff;font-size:12px;font-weight:750;white-space:nowrap;display:flex;align-items:center;justify-content:center}
 .language-switch:active{transform:scale(.96)}
 @media(max-width:390px){.language-switch{height:31px;min-width:46px;padding:0 6px;font-size:11px}}
+
+
+/* Font-size controls with live sample inside Options */
+.options-card{background:#fff;border:1px solid #e6e9ee;border-radius:16px;padding:18px 16px;margin:12px 0 16px;box-shadow:0 2px 8px rgba(35,48,66,.035)}
+.options-section-title{font-size:14px;font-weight:750;color:#34465c;margin-bottom:14px}
+.font-size-controls{display:flex;align-items:center;gap:10px}
+.font-size-controls>button:not(.font-reset){width:46px;height:44px;border:1px solid #dfe5ed;border-radius:12px;background:#f7f9fc;color:#3f5876;font-size:18px;font-weight:750}
+.font-size-current{flex:1;display:flex;align-items:baseline;justify-content:center;gap:4px;color:#42556e}
+.font-size-current strong{font-size:22px;font-weight:800}.font-size-current small{font-size:11px;color:#8a96a5}
+.font-size-controls .font-reset{height:38px;padding:0 10px;border:0;border-radius:10px;background:#edf2f7;color:#64758b;font-size:11px;font-weight:700;white-space:nowrap}
+.font-preview-label{margin:20px 0 8px;font-size:11px;font-weight:750;color:#8793a2;letter-spacing:.04em}
+.font-preview{display:flex;align-items:flex-start;gap:10px;padding:16px 14px;border-radius:12px;background:#f8f5ef;color:#473b2e;line-height:1.85;word-break:keep-all;transition:font-size .15s ease}
+.font-preview-verse{flex:0 0 auto;font-size:12px;font-weight:750;color:#a1845d;padding-top:3px}
+.font-preview-caption{margin:10px 2px 0;color:#8994a2;font-size:11px;line-height:1.6}
+.options-secondary{margin-top:0}
+.dark .options-card{background:#292f38;border-color:#414a57;color:#e3eaf2}
+.dark .options-section-title,.dark .font-size-current{color:#e3eaf2}
+.dark .font-size-controls>button:not(.font-reset){background:#333b47;border-color:#4a5666;color:#e0e9f4}
+.dark .font-size-controls .font-reset{background:#38414d;color:#c3cfdd}
+.dark .font-preview{background:#34302b;color:#f0e6d8}
+.dark .font-preview-label,.dark .font-preview-caption{color:#aeb8c6}
