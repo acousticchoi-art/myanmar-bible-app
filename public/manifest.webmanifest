@@ -13,6 +13,12 @@
   "theme_color": "#F4EEE4",
   "icons": [
     {
+      "src": "/kyanza-home-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "/kyanza-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
