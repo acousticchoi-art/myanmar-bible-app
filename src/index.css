@@ -995,3 +995,8 @@ body{overflow-x:hidden;background:#fff}
  .font-size-controls .font-reset{padding:0 9px;font-size:10px}
  .options-group{margin-top:14px}
 }
+
+/* User-selected Bible text size overrides fixed responsive typography. */
+.scripture-card .verse-texts p.verse-primary,
+.scripture-card .verse-texts p:not(.verse-secondary) { font-size: var(--bible-font-size, 11pt) !important; }
+.scripture-card .verse-texts p.verse-secondary { font-size: var(--bible-secondary-font-size, 10pt) !important; }
