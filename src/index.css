@@ -1000,3 +1000,42 @@ body{overflow-x:hidden;background:#fff}
 .scripture-card .verse-texts p.verse-primary,
 .scripture-card .verse-texts p:not(.verse-secondary) { font-size: var(--bible-font-size, 11pt) !important; }
 .scripture-card .verse-texts p.verse-secondary { font-size: var(--bible-secondary-font-size, 10pt) !important; }
+
+/* Mobile Bible navigator: keep header and all three panes inside the visible viewport. */
+.navigator-overlay{
+  position:fixed!important;
+  inset:0!important;
+  z-index:1000!important;
+  align-items:stretch!important;
+  padding:0!important;
+}
+.navigator-modal{
+  position:relative;
+  width:100%;
+  height:100dvh;
+  max-height:100dvh;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+  box-sizing:border-box;
+}
+.navigator-head{flex:0 0 auto;min-height:58px;gap:12px}
+.navigator-head h2{flex:1;min-width:0;line-height:1.35;overflow-wrap:anywhere}
+.navigator-columns{flex:1 1 auto;min-height:0}
+.navigator-columns section{min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.navigator-current{flex:0 0 auto}
+@media(max-width:700px){
+  .navigator-modal{height:100dvh;max-height:100dvh}
+  .navigator-head{padding:8px 14px;min-height:60px}
+  .navigator-head h2{font-size:15px}
+  .navigator-columns{
+    grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr) minmax(0,.85fr);
+    gap:6px;padding:8px 6px;
+  }
+  .navigator-columns section{min-width:0;border-radius:9px}
+  .navigator-book{width:calc(100% - 8px);margin:2px 4px;min-height:54px;padding:7px 5px}
+  .navigator-book span{font-size:12px;overflow-wrap:anywhere}
+  .navigator-book small{font-size:10px}
+  .navigator-number{width:calc(100% - 8px);margin:3px 4px;min-height:44px;padding:5px 2px;font-size:12px}
+  .navigator-current{min-height:64px;padding:9px 12px}
+  .navigator-current strong{font-size:13px}
+}
