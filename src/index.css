@@ -1039,3 +1039,29 @@ body{overflow-x:hidden;background:#fff}
   .navigator-current{min-height:64px;padding:9px 12px}
   .navigator-current strong{font-size:13px}
 }
+
+/* Clear, consistent Bible search and navigation surfaces. */
+.search-page-heading{padding:12px 0 18px;background:transparent;color:var(--text)}
+.search-page-heading h1{color:var(--text)}
+.search-page-heading .eyebrow{color:var(--muted)}
+.search-input{
+  background:#fff!important;color:#263449!important;
+  border:1px solid #dce4ee!important;border-radius:12px!important;
+  box-shadow:0 1px 3px rgba(24,39,75,.04);
+}
+.search-input::placeholder{color:#8b98a8}
+.search-input:focus{border-color:#3179c8!important;outline:2px solid rgba(49,121,200,.14);outline-offset:0}
+.book-result{background:transparent;color:var(--text)}
+.navigator-overlay{background:rgba(20,31,48,.38)!important}
+.navigator-modal,.navigator-columns{background:#f6f8fb!important}
+.navigator-head,.navigator-current{background:#fff!important;color:#263449!important}
+.navigator-columns section{background:#fff!important}
+.navigator-book,.navigator-number{color:#35465d}
+.navigator-book.selected,.navigator-number.selected{background:#e7f1ff!important;color:#1765bd!important;border-color:#3179c8!important}
+.dark .search-input{background:#252c36!important;color:#f1f4f8!important;border-color:#475365!important}
+.dark .book-result{color:#edf0f4}
+.option-language-picker{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px 16px}
+.option-language-picker button{min-height:46px;border:1px solid #dce4ee;border-radius:11px;background:#fff;color:#465970;font:inherit;font-size:14px;font-weight:700}
+.option-language-picker button.active{border-color:#3179c8;background:#eaf3ff;color:#1765bd}
+.dark .option-language-picker button{background:#293340;color:#e2eaf4;border-color:#485569}
+.dark .option-language-picker button.active{background:#294c70;color:#fff}
