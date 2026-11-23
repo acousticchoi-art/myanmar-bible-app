@@ -1088,3 +1088,9 @@ body{overflow-x:hidden;background:#fff}
 }
 .verse-note-indicator span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dark .verse-note-indicator{color:#bfdaf7;background:#2b4056;border-color:#496d8d}
+
+/* The fixed header already includes the safe-area inset in its height.
+   Do not add the inset twice above the first Bible verse. */
+.app:has(.scripture-card){padding-top:140px!important}
+.reader:has(.scripture-card) .scripture-card{padding-top:8px}
+.reader:has(.scripture-card) .scripture-card>.scripture-meta+.verse{padding-top:6px}

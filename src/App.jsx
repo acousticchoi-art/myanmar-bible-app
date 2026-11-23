@@ -75,7 +75,7 @@ export default function App() {
   const legacyNoteFor=verse=>{
     const number=String(canonicalVerseNumber(verse))
     const text=localStorage.getItem('bible-note-'+passageKey(number))
-    return text?.trim()?{id:'legacy:'+passageKey(number),book:book.code,chapter,verses:[number],text,legacy:true}:null
+    return text?.trim()?{id:'legacy:'+passageKey(number),book:book.code,chapter,verses:[number],text,legacy:true,updatedAt:Number(localStorage.getItem('bible-note-updated-'+passageKey(number))||0)}:null
   }
   const notesForVerses=values=>{
     const wanted=normalizeNoteVerses(values)
@@ -83,6 +83,7 @@ export default function App() {
     const legacy=wanted.map(legacyNoteFor).filter(Boolean)
     return [...saved,...legacy].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))
   }
+  const formatNoteTime=timestamp=>timestamp&&Number.isFinite(Number(timestamp))?new Date(Number(timestamp)).toLocaleString(lang==='ko'?'ko-KR':'my-MM',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}):null
   const openNotesFor=values=>{
     const verses=normalizeNoteVerses(values)
     setNoteVerses(verses);setNoteEditVerses(verses);setNoteTarget(null);setNote('')
@@ -96,11 +97,12 @@ export default function App() {
     if(!value)return
     if(noteTarget?.startsWith('legacy:')){
       localStorage.setItem('bible-note-'+noteTarget.slice(7),value)
+      localStorage.setItem('bible-note-updated-'+noteTarget.slice(7),String(Date.now()))
       setVerseNotes(items=>[...items])
     }else{
       const id=noteTarget||'note:'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)
       const existing=verseNotes.find(item=>item.id===id)
-      const next=[...verseNotes.filter(item=>item.id!==id),{id,book:book.code,chapter,verses:noteEditVerses,text:value,createdAt:existing?.createdAt||Date.now()}]
+      const next=[...verseNotes.filter(item=>item.id!==id),{id,book:book.code,chapter,verses:noteEditVerses,text:value,createdAt:existing?.createdAt||Date.now(),...(existing?{updatedAt:Date.now()}:{})}]
       localStorage.setItem('bible-verse-notes-v2',JSON.stringify(next))
       setVerseNotes(next)
     }
@@ -155,6 +157,7 @@ export default function App() {
             {notesForVerses(noteVerses).length===0&&<p style={{fontSize:13,color:'var(--muted)'}}>{lang==='ko'?'작성된 메모가 없습니다.':'မှတ်စု မရှိသေးပါ။'}</p>}
             {notesForVerses(noteVerses).map((item,index)=><div key={item.id} style={{border:'1px solid var(--line)',borderRadius:12,padding:12,background:'var(--bg)'}}>
               <div style={{fontSize:11,color:'var(--muted)',marginBottom:6}}>{lang==='ko'?'메모':'မှတ်စု'} {index+1} · {bookTitle} {chapter}:{item.verses.join(', ')}</div>
+              <div style={{fontSize:11,color:'var(--muted)',marginBottom:8,lineHeight:1.55}}>{item.createdAt?(lang==='ko'?'작성: ':'ရေးသားချိန်: ')+formatNoteTime(item.createdAt):item.updatedAt?(lang==='ko'?'수정: ':'ပြင်ဆင်ချိန်: ')+formatNoteTime(item.updatedAt):(lang==='ko'?'이전 메모 · 작성 날짜 기록 없음':'မှတ်စုဟောင်း · ရက်စွဲမရှိ')}{item.createdAt&&item.updatedAt&&<span style={{display:'block'}}>{(lang==='ko'?'수정: ':'ပြင်ဆင်ချိန်: ')+formatNoteTime(item.updatedAt)}</span>}</div>
               <p style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',margin:'0 0 12px',fontSize:13,lineHeight:1.7}}>{item.text}</p>
               <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
                 <button onClick={()=>editSavedNote(item)} style={{border:'1px solid var(--line)',borderRadius:8,background:'var(--surface)',color:'var(--text)',padding:'7px 12px',font:'inherit',fontSize:12}}>{lang==='ko'?'수정':'ပြင်ဆင်ရန်'}</button>
