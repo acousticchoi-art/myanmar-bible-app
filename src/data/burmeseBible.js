@@ -1,4 +1,4 @@
-import { readBurmeseOffline, saveBurmeseOffline, getSavedBurmeseCodes } from './offlineBible'
+import { readBurmeseOffline, saveBurmeseOffline, getSavedBurmeseCodes, readOfflineBible, saveOfflineBible } from './offlineBible'
 // Burmese Judson Bible (1840 edition) metadata and USFM loader.
 // Source: digitalbiblesociety/Archive-Bible-Burmese (Unlicense).
 export const books = [
@@ -534,7 +534,10 @@ export async function downloadOfflineBurmeseBible(onProgress) {
 // Source: farskipper/kjv, json/verses-1769.json.
 const KJV_URL = "https://raw.githubusercontent.com/farskipper/kjv/master/json/verses-1769.json";
 let kjvPromise;
-export async function loadKJVBook(book) {
+export async function loadKJVBook(book, { requireOfflineSave = false } = {}) {
+  let cached = null;
+  try { cached = await readOfflineBible('kjv', book.code); } catch { /* Reading online remains possible. */ }
+  if (cached?.chapters?.[1]?.length) return cached;
   if (!kjvPromise) {
     kjvPromise = fetch(KJV_URL).then(response => {
       if (!response.ok) throw new Error("Unable to load KJV text");
@@ -559,7 +562,11 @@ export async function loadKJVBook(book) {
       text: String(rawText).replace(/^#\s*/, "").replace(/\[([^\]]+)\]/g, "$1").trim()
     });
   }
-  return { bookCode: book.code, bookName: book.en, chapters };
+  const data = { bookCode: book.code, bookName: book.en, chapters };
+  if (!data.chapters[1]?.length) throw new Error('Incomplete KJV book: ' + book.code);
+  try { await saveOfflineBible('kjv', book.code, data); }
+  catch (error) { if (requireOfflineSave) throw error; }
+  return data;
 }
 
 
@@ -567,7 +574,10 @@ export async function loadKJVBook(book) {
 // Source: aruljohn/Bible-niv JSON mirror. Text use is based on the user's confirmation of permission.
 const NIV_BASE = "https://raw.githubusercontent.com/aruljohn/Bible-niv/main/";
 const NIV_BOOK_NAMES = { SNG: "Song Of Solomon" };
-export async function loadNIVBook(book) {
+export async function loadNIVBook(book, { requireOfflineSave = false } = {}) {
+  let cached = null;
+  try { cached = await readOfflineBible('niv', book.code); } catch { /* Reading online remains possible. */ }
+  if (cached?.chapters?.[1]?.length) return cached;
   const fileName = (NIV_BOOK_NAMES[book.code] || book.en) + ".json";
   const response = await fetch(NIV_BASE + encodeURIComponent(fileName));
   if (!response.ok) throw new Error("Unable to load NIV book: " + book.code);
@@ -579,5 +589,9 @@ export async function loadNIVBook(book) {
       text: String(verse.text || "").trim()
     }));
   }
-  return { bookCode: book.code, bookName: source.book || book.en, chapters };
+  const data = { bookCode: book.code, bookName: source.book || book.en, chapters };
+  if (!data.chapters[1]?.length) throw new Error('Incomplete NIV book: ' + book.code);
+  try { await saveOfflineBible('niv', book.code, data); }
+  catch (error) { if (requireOfflineSave) throw error; }
+  return data;
 }

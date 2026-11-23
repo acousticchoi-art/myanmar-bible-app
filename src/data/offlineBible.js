@@ -26,16 +26,21 @@ async function transaction(mode, action) {
     tx.onerror = () => {};
   });
 }
-const key = code => 'my:' + code;
-export async function readBurmeseOffline(code) {
-  const entry = await transaction('readonly', store => store.get(key(code)));
+const key = (version, code) => version + ':' + code;
+export async function readOfflineBible(version, code) {
+  const entry = await transaction('readonly', store => store.get(key(version, code)));
   return entry?.data || null;
 }
-export async function saveBurmeseOffline(code, data) {
-  if (!data?.chapters?.[1]?.length) throw new Error('Incomplete Bible data');
-  await transaction('readwrite', store => store.put({ id: key(code), data }));
+export async function saveOfflineBible(version, code, data) {
+  if (!data?.chapters?.[1]?.length) throw new Error('Incomplete Bible data: ' + version + ':' + code);
+  await transaction('readwrite', store => store.put({ id: key(version, code), data }));
 }
-export async function getSavedBurmeseCodes() {
+export async function getSavedBibleCodes(version) {
   const ids = await transaction('readonly', store => store.getAllKeys());
-  return new Set(ids.filter(id => String(id).startsWith('my:')).map(id => String(id).slice(3)));
+  const prefix = version + ':';
+  return new Set(ids.filter(id => String(id).startsWith(prefix)).map(id => String(id).slice(prefix.length)));
 }
+
+export const readBurmeseOffline = code => readOfflineBible('my', code);
+export const saveBurmeseOffline = (code, data) => saveOfflineBible('my', code, data);
+export const getSavedBurmeseCodes = () => getSavedBibleCodes('my');

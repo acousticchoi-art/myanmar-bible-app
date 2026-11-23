@@ -1,3 +1,4 @@
+import { readOfflineBible, saveOfflineBible } from './offlineBible'
 // Korean Revised Version (개역개정, NKRV)
 // Authorized source data is stored in seven lazy-loaded JSON partitions.
 const ABBR = {
@@ -20,7 +21,10 @@ async function loadPart(n) {
   }).catch(e => { cache.delete(n); throw e; }));
   return cache.get(n);
 }
-export async function loadKoreanBook(book) {
+export async function loadKoreanBook(book, { requireOfflineSave = false } = {}) {
+  let cached = null;
+  try { cached = await readOfflineBible('ko', book.code); } catch { /* Reading online remains possible. */ }
+  if (cached?.chapters?.[1]?.length) return cached;
   const abbreviation = ABBR[book.code];
   if (!abbreviation) throw new Error('지원하지 않는 성경입니다: ' + book.code);
   const partitions = await Promise.all((PARTS[book.code] || []).map(loadPart));
@@ -35,5 +39,9 @@ export async function loadKoreanBook(book) {
     chapters[chapter].push({ number: numberText.includes('-') ? numberText : Number(numberText), text: String(rawText) });
   }
   for (const list of Object.values(chapters)) list.sort((a,b) => Number(String(a.number).split('-')[0]) - Number(String(b.number).split('-')[0]));
-  return { bookCode: book.code, bookName: book.ko || book.en, chapters };
+  const data = { bookCode: book.code, bookName: book.ko || book.en, chapters };
+  if (!data.chapters[1]?.length) throw new Error('Incomplete Korean Bible book: ' + book.code);
+  try { await saveOfflineBible('ko', book.code, data); }
+  catch (error) { if (requireOfflineSave) throw error; }
+  return data;
 }
