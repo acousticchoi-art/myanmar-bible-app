@@ -1,3 +1,4 @@
+import { readBurmeseOffline, saveBurmeseOffline, getSavedBurmeseCodes } from './offlineBible'
 // Burmese Judson Bible (1840 edition) metadata and USFM loader.
 // Source: digitalbiblesociety/Archive-Bible-Burmese (Unlicense).
 export const books = [
@@ -476,7 +477,10 @@ function cleanUsfmText(value) {
     .trim();
 }
 
-export async function loadBurmeseBook(book) {
+export async function loadBurmeseBook(book, { requireOfflineSave = false } = {}) {
+  let cached = null;
+  try { cached = await readBurmeseOffline(book.code); } catch { /* Continue online if local storage is unavailable. */ }
+  if (cached?.chapters?.[1]?.length) return cached;
   const response = await fetch(BASE + book.file);
   if (!response.ok) throw new Error("Unable to load Bible book: " + book.code);
   const source = await response.text();
@@ -500,9 +504,31 @@ export async function loadBurmeseBook(book) {
     }
   }
 
-  return { bookCode: book.code, bookName: burmeseName, chapters: chapterMap };
+  const data = { bookCode: book.code, bookName: burmeseName, chapters: chapterMap };
+  if (!data.chapters[1]?.length) throw new Error('Bible download is incomplete: ' + book.code);
+  try { await saveBurmeseOffline(book.code, data); }
+  catch (error) { if (requireOfflineSave) throw error; }
+  return data;
 }
 
+export async function countOfflineBurmeseBooks() {
+  const saved = await getSavedBurmeseCodes();
+  return books.filter(item => saved.has(item.code)).length;
+}
+export async function downloadOfflineBurmeseBible(onProgress) {
+  const saved = await getSavedBurmeseCodes();
+  let completed = books.filter(book => saved.has(book.code)).length;
+  onProgress?.(completed, books.length);
+  // Sequential requests work more reliably on slow and intermittent mobile networks.
+  for (const book of books) {
+    if (saved.has(book.code)) continue;
+    await loadBurmeseBook(book, { requireOfflineSave: true });
+    saved.add(book.code);
+    completed += 1;
+    onProgress?.(completed, books.length);
+  }
+  return completed;
+}
 
 // King James Version (1769) — Public Domain / Unlicense.
 // Source: farskipper/kjv, json/verses-1769.json.
