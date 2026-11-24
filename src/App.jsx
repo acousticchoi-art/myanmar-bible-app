@@ -57,6 +57,12 @@ export default function App() {
   const [searchLimits,setSearchLimits]=useState({})
   const [pendingSearchJump,setPendingSearchJump]=useState(null)
   const searchRun=useRef(0)
+  const noteInputRef=useRef(null)
+  const quoteRange=useRef({start:0,end:0})
+  const [quotePicker,setQuotePicker]=useState(null)
+  const [quoteData,setQuoteData]=useState(null)
+  const [quoteLoading,setQuoteLoading]=useState(false)
+  const [quoteError,setQuoteError]=useState(false)
   const versionNames={my:'Judson Burmese',kjv:'King James Version (KJV)',niv:'New International Version (NIV)',ko:'개역개정'}
   useEffect(()=>{
     if(!('serviceWorker' in navigator)||!('caches' in window))return
@@ -171,6 +177,55 @@ export default function App() {
   const openNote=()=>openNotesFor(copySelection.length?copySelection:[selectedVerse])
   const beginNewNote=()=>{setNoteTarget(null);setNoteEditVerses(noteVerses);setNote('');setNoteMode('edit')}
   const editSavedNote=item=>{setNoteTarget(item.id);setNoteEditVerses(item.verses);setNote(item.text);setNoteMode('edit')}
+  const openQuotePicker=(start,end)=>{
+    quoteRange.current={start,end}
+    setQuoteData(null);setQuoteLoading(true);setQuoteError(false)
+    setQuotePicker({book,chapter,version:primaryVersion,verses:[]})
+  }
+  const changeNoteText=e=>{
+    const value=e.target.value,caret=e.target.selectionStart??value.length
+    setNote(value)
+    if(!e.nativeEvent?.isComposing&&value!==note&&value[caret-1]==='@'&&value.length>=note.length){
+      openQuotePicker(caret-1,caret)
+    }
+  }
+  const openQuoteAtCursor=()=>{
+    const input=noteInputRef.current
+    const start=input?.selectionStart??note.length,end=input?.selectionEnd??start
+    openQuotePicker(start,end)
+  }
+  useEffect(()=>{
+    if(!showNote){setQuotePicker(null);return}
+    if(!quotePicker)return
+    let active=true
+    setQuoteData(null);setQuoteLoading(true);setQuoteError(false)
+    const loader={my:loadBurmeseBook,ko:loadKoreanBook,kjv:loadKJVBook,niv:loadNIVBook}[quotePicker.version]
+    loader(quotePicker.book).then(data=>{
+      if(active){setQuoteData(data);setQuoteError(!data?.chapters?.[1]?.length)}
+    }).catch(()=>{if(active)setQuoteError(true)}).finally(()=>{if(active)setQuoteLoading(false)})
+    return()=>{active=false}
+  },[showNote,quotePicker?.book.code,quotePicker?.version])
+  const quoteEntries=quoteData?.bookCode===quotePicker?.book.code?(quoteData?.chapters?.[quotePicker?.chapter]||[]):[]
+  const chosenQuoteEntries=quoteEntries.filter(entry=>quotePicker?.verses.includes(String(entry.number)))
+  const insertQuote=()=>{
+    if(!quotePicker||quoteLoading||!chosenQuoteEntries.length)return
+    const address=localBookName(quotePicker.book)+' '+quotePicker.chapter+':'+chosenQuoteEntries.map(v=>v.number).join(', ')
+    const citation='['+address+' · '+versionNames[quotePicker.version]+']\n'+chosenQuoteEntries.map(v=>v.number+' '+v.text).join('\n')
+    const {start,end}=quoteRange.current
+    const before=note.slice(0,start),after=note.slice(end)
+    const left=before&&!before.endsWith('\n')?'\n':''
+    const insertion=left+citation+'\n'
+    setNote(before+insertion+after);setQuotePicker(null)
+    requestAnimationFrame(()=>{const input=noteInputRef.current;if(input){input.focus();input.setSelectionRange(start+insertion.length,start+insertion.length)}})
+  }
+  const renderNoteText=value=>String(value||'').split('\n').map((line,index)=>{
+    const match=line.match(/^\[(.+?) (\d+):([\d,\s-]+) · (.+)\]$/)
+    const target=match&&books.find(b=>[b.ko,b.en,burmeseBookNames[b.code]].includes(match[1]))
+    const version=match&&Object.keys(versionNames).find(id=>versionNames[id]===match[4])
+    const targetChapter=match?Number(match[2]):0
+    const verse=match?Number.parseInt(match[3],10):0
+    return <span key={index}>{index>0?'\n':''}{target&&version&&targetChapter>0&&targetChapter<=target.chapters&&verse>0?<button type="button" onClick={()=>{setShowNote(false);openSearchResult({book:target,chapter:targetChapter,verse},version)}} style={{border:0,background:'transparent',color:'#377ac5',font:'inherit',fontWeight:700,padding:0,textAlign:'start',textDecoration:'underline'}}>{localBookName(target)} {targetChapter}:{match[3]} · {versionNames[version]}</button>:line}</span>
+  })
   const saveNote=()=>{
     const value=note.trim()
     if(!value)return
@@ -340,7 +395,7 @@ export default function App() {
             {notesForVerses(noteVerses).map((item,index)=><div key={item.id} style={{border:'1px solid var(--line)',borderRadius:12,padding:12,background:'var(--bg)'}}>
               <div style={{fontSize:11,color:'var(--muted)',marginBottom:6}}>{lang==='ko'?'메모':'မှတ်စု'} {index+1} · {bookTitle} {chapter}:{item.verses.join(', ')}</div>
               <div style={{fontSize:11,color:'var(--muted)',marginBottom:8,lineHeight:1.55}}>{item.createdAt?(lang==='ko'?'작성: ':'ရေးသားချိန်: ')+formatNoteTime(item.createdAt):item.updatedAt?(lang==='ko'?'수정: ':'ပြင်ဆင်ချိန်: ')+formatNoteTime(item.updatedAt):(lang==='ko'?'이전 메모 · 작성 날짜 기록 없음':'မှတ်စုဟောင်း · ရက်စွဲမရှိ')}{item.createdAt&&item.updatedAt&&<span style={{display:'block'}}>{(lang==='ko'?'수정: ':'ပြင်ဆင်ချိန်: ')+formatNoteTime(item.updatedAt)}</span>}</div>
-              <p style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',margin:'0 0 12px',fontSize:13,lineHeight:1.7}}>{item.text}</p>
+              <p style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',margin:'0 0 12px',fontSize:13,lineHeight:1.7}}>{renderNoteText(item.text)}</p>
               <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
                 <button onClick={()=>editSavedNote(item)} style={{border:'1px solid var(--line)',borderRadius:8,background:'var(--surface)',color:'var(--text)',padding:'7px 12px',font:'inherit',fontSize:12}}>{lang==='ko'?'수정':'ပြင်ဆင်ရန်'}</button>
                 <button onClick={()=>deleteNote(item)} style={{border:'1px solid #efb5b5',borderRadius:8,background:'transparent',color:'#b14343',padding:'7px 12px',font:'inherit',fontSize:12}}>{lang==='ko'?'삭제':'ဖျက်ရန်'}</button>
@@ -349,13 +404,26 @@ export default function App() {
           </div>
           <button onClick={beginNewNote} style={{width:'100%',border:0,borderRadius:10,background:'#435d7c',color:'#fff',padding:'12px 15px',font:'inherit',fontWeight:700}}>{lang==='ko'?'+ 새 메모 추가':'+ မှတ်စုအသစ် ရေးရန်'}</button>
         </>:<>
-          <textarea aria-label={t.personalNote} placeholder={t.writeNote} value={note} onChange={e=>setNote(e.target.value)} rows={6} style={{width:'100%',minHeight:150,resize:'vertical',border:'1px solid var(--line)',borderRadius:10,background:'var(--bg)',color:'var(--text)',padding:12,font:'inherit',fontSize:14,lineHeight:1.7}}/>
+          <button type="button" className="menu-return-button" onClick={openQuoteAtCursor} style={{alignSelf:'flex-start'}}><span style={{fontWeight:700}}>@</span> {lang==='ko'?'성경 인용':'ကျမ်းပိုဒ် ကိုးကားရန်'}</button>
+          <textarea ref={noteInputRef} aria-label={t.personalNote} placeholder={t.writeNote} value={note} onChange={changeNoteText} rows={6} style={{width:'100%',minHeight:150,resize:'vertical',border:'1px solid var(--line)',borderRadius:10,background:'var(--bg)',color:'var(--text)',padding:12,font:'inherit',fontSize:14,lineHeight:1.7}}/>
           <div style={{display:'flex',justifyContent:'flex-end',flexWrap:'wrap',gap:8}}>
             {noteTarget&&<button onClick={()=>deleteNote({id:noteTarget})} style={{border:'1px solid #efb5b5',background:'transparent',color:'#b14343',borderRadius:9,padding:'10px 13px',font:'inherit'}}>{lang==='ko'?'삭제':'ဖျက်ရန်'}</button>}
             <button onClick={()=>{setNoteMode('list');setNoteTarget(null);setNote('')}} style={{border:'1px solid var(--line)',background:'var(--surface2)',color:'var(--text)',borderRadius:9,padding:'10px 13px',font:'inherit'}}>{lang==='ko'?'목록':'စာရင်း'}</button>
             <button onClick={saveNote} disabled={!note.trim()} style={{border:0,background:'#435d7c',opacity:note.trim()?1:0.45,color:'#fff',borderRadius:9,padding:'10px 17px',font:'inherit',fontWeight:700}}>{t.keep}</button>
           </div>
         </>}
+      </div>
+    </div>}
+    {showNote&&quotePicker&&<div className="overlay navigator-overlay" style={{zIndex:120}} onClick={()=>setQuotePicker(null)}>
+      <div className="navigator-modal" role="dialog" aria-modal="true" aria-label={lang==='ko'?'성경 인용':'ကျမ်းပိုဒ် ကိုးကားရန်'} onClick={e=>e.stopPropagation()}>
+        <div className="navigator-head"><h2>{lang==='ko'?'성경 인용':'ကျမ်းပိုဒ် ကိုးကားရန်'}</h2><button type="button" onClick={()=>setQuotePicker(null)} aria-label={lang==='ko'?'닫기':'ပိတ်ရန်'}><X/></button></div>
+        <div style={{padding:'8px 14px'}}><label className="version-picker"><span>{lang==='ko'?'인용할 역본':'ကိုးကားမည့် ကျမ်းစာဘာသာပြန်'}</span><select value={quotePicker.version} onChange={e=>{setQuoteData(null);setQuoteLoading(true);setQuotePicker(p=>({...p,version:e.target.value,verses:[]}))}}>{Object.entries(versionNames).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></label></div>
+        <div className="navigator-columns">
+          <section className="navigator-books"><div className="navigator-section-label">{lang==='ko'?'성경':'ကျမ်းစာ'}</div>{books.map(b=><button type="button" key={b.code} className={quotePicker.book.code===b.code?'navigator-book selected':'navigator-book'} onClick={()=>{if(b.code!==quotePicker.book.code){setQuoteData(null);setQuoteLoading(true)}setQuotePicker(p=>({...p,book:b,chapter:1,verses:[]}))}}><span>{localBookName(b)}</span><small>{b.en}</small></button>)}</section>
+          <section className="navigator-chapters"><div className="navigator-section-label">{lang==='ko'?'장':'အခန်း'}</div>{Array.from({length:quotePicker.book.chapters},(_,i)=>i+1).map(n=><button type="button" key={n} className={quotePicker.chapter===n?'navigator-number selected':'navigator-number'} onClick={()=>setQuotePicker(p=>({...p,chapter:n,verses:[]}))}>{n} {lang==='ko'?'장':'အခန်း'}</button>)}</section>
+          <section className="navigator-verses"><div className="navigator-section-label">{lang==='ko'?'절':'အငယ်'}</div>{quoteLoading?<small style={{padding:8}}>{lang==='ko'?'불러오는 중':'ဖွင့်နေသည်'}</small>:quoteError||!quoteEntries.length?<small style={{padding:8}}>{lang==='ko'?'본문을 불러오지 못했습니다.':'ကျမ်းစာ ဖွင့်၍မရပါ။'}</small>:quoteEntries.map(v=><button type="button" key={v.number} className={quotePicker.verses.includes(String(v.number))?'navigator-number selected':'navigator-number'} onClick={()=>setQuotePicker(p=>({...p,verses:p.verses.includes(String(v.number))?p.verses.filter(n=>n!==String(v.number)):[...p.verses,String(v.number)]}))}>{v.number} {lang==='ko'?'절':'ပိုဒ်'}</button>)}</section>
+        </div>
+        <div className="navigator-current"><strong>{localBookName(quotePicker.book)} {quotePicker.chapter}{chosenQuoteEntries.length?':'+chosenQuoteEntries.map(v=>v.number).join(', '):lang==='ko'?'장':' အခန်း'}</strong><button type="button" disabled={quoteLoading||!chosenQuoteEntries.length} style={{opacity:(quoteLoading||!chosenQuoteEntries.length)?0.45:1}} onClick={insertQuote}>{lang==='ko'?'구절 삽입':'ကျမ်းပိုဒ် ထည့်ရန်'}</button></div>
       </div>
     </div>}{copyToast&&<div className="copy-toast">{copyToast}</div>}  </main>
 }
