@@ -51,11 +51,10 @@ export default function App() {
   const [secondaryVersion,setSecondaryVersion]=useState(()=>['my','kjv','niv','ko'].includes(localStorage.getItem('bible-secondary-version'))?localStorage.getItem('bible-secondary-version'):'niv')
   const t=copy[lang]
   const [tab,setTab]=useState('read'), [book,setBook]=useState(()=>getLastReading().book), [chapter,setChapter]=useState(()=>getLastReading().chapter), [fontSize,setFontSize]=useState(()=>Math.min(32,Math.max(9,Number(localStorage.getItem('bible-font-size')||11)||11))), [dark,setDark]=useState(false), [marked,setMarked]=useState(()=>JSON.parse(localStorage.getItem('bible-highlights')||'[]')), [selectedVerse,setSelectedVerse]=useState(()=>getLastReading().verse), [hasSelectedVerse,setHasSelectedVerse]=useState(false), [showScrollTop,setShowScrollTop]=useState(false), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [noteVerses,setNoteVerses]=useState([]), [noteEditVerses,setNoteEditVerses]=useState([]), [noteMode,setNoteMode]=useState('list'), [noteTarget,setNoteTarget]=useState(null), [verseNotes,setVerseNotes]=useState(()=>{try{const value=JSON.parse(localStorage.getItem('bible-verse-notes-v2')||'[]');return Array.isArray(value)?value:[]}catch{return []}}), [showBooks,setShowBooks]=useState(false), [showVersions,setShowVersions]=useState(false), [showNavigator,setShowNavigator]=useState(false), [navChapter,setNavChapter]=useState(1), [search,setSearch]=useState(''), [copyMode,setCopyMode]=useState(false), [copySelection,setCopySelection]=useState([]), [showCopyModal,setShowCopyModal]=useState(false), [copyVersions,setCopyVersions]=useState(['my','niv']), [copyToast,setCopyToast]=useState(''), [bookmarks,setBookmarks]=useState(()=>JSON.parse(localStorage.getItem('bible-bookmarks')||'[]')), [history,setHistory]=useState(()=>JSON.parse(localStorage.getItem('bible-history')||'[]'))
-  const [searchVersion,setSearchVersion]=useState(primaryVersion)
   const [searchBusy,setSearchBusy]=useState(false)
   const [searchProgress,setSearchProgress]=useState(0)
   const [searchReport,setSearchReport]=useState(null)
-  const [searchLimit,setSearchLimit]=useState(40)
+  const [searchLimits,setSearchLimits]=useState({})
   const [pendingSearchJump,setPendingSearchJump]=useState(null)
   const searchRun=useRef(0)
   const versionNames={my:'Judson Burmese',kjv:'King James Version (KJV)',niv:'New International Version (NIV)',ko:'개역개정'}
@@ -207,42 +206,49 @@ export default function App() {
     const clean=String(value||'').normalize('NFC').toLowerCase().replace(/[\u200b-\u200d\ufeff]/g,'').trim()
     return version==='my'||version==='ko'?clean.replace(/\s+/g,''):clean.replace(/\s+/g,' ')
   }
-  useEffect(()=>{setSearchVersion(primaryVersion)},[primaryVersion])
   useEffect(()=>()=>{searchRun.current++},[tab])
   const cancelSearch=()=>{searchRun.current++;setSearchBusy(false);setSearchReport(null)}
   const runBibleSearch=async event=>{
     event.preventDefault()
-    const version=searchVersion,query=normalizeSearch(search,version)
-    if(!query||searchBusy)return
+    const rawQuery=search.trim()
+    if(!normalizeSearch(rawQuery,'ko')||searchBusy)return
     const run=++searchRun.current
-    setSearchBusy(true);setSearchProgress(0);setSearchReport(null);setSearchLimit(40)
-    const loader={my:loadBurmeseBook,ko:loadKoreanBook,kjv:loadKJVBook,niv:loadNIVBook}[version]
-    const matches=[];let total=0,checked=0
-    const missing=[]
-    for(const item of books){
-      if(searchRun.current!==run)return
-      try{
-        const data=await loader(item)
+    setSearchBusy(true);setSearchProgress(0);setSearchReport(null);setSearchLimits({})
+    const loaders={my:loadBurmeseBook,ko:loadKoreanBook,kjv:loadKJVBook,niv:loadNIVBook}
+    // Start with the language of the query, but search every translation.
+    const preferred=/[\u1000-\u109f\uaa60-\uaa7f\ua9e0-\ua9ff]/u.test(rawQuery)?['my']: /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/u.test(rawQuery)?['ko']:['kjv','niv']
+    const versions=[...new Set([...preferred,primaryVersion,'my','ko','kjv','niv'])]
+    const groups=[];let progress=0
+    for(const version of versions){
+      const query=normalizeSearch(rawQuery,version)
+      const matches=[];let total=0,checked=0
+      const missing=[]
+      for(const item of books){
         if(searchRun.current!==run)return
-        if(!data?.chapters?.[1]?.length)throw new Error('Missing Bible data')
-        for(const [chapterNumber,entries] of Object.entries(data.chapters)){
-          for(const verse of entries){
-            if(normalizeSearch(verse.text,version).includes(query)){
-              total++
-              if(matches.length<500)matches.push({book:item,chapter:Number(chapterNumber),verse:verse.number,text:verse.text})
+        try{
+          const data=await loaders[version](item)
+          if(searchRun.current!==run)return
+          if(!data?.chapters?.[1]?.length)throw new Error('Missing Bible data')
+          for(const [chapterNumber,entries] of Object.entries(data.chapters)){
+            for(const verse of entries){
+              if(query&&normalizeSearch(verse.text,version).includes(query)){
+                total++
+                if(matches.length<500)matches.push({book:item,chapter:Number(chapterNumber),verse:verse.number,text:verse.text})
+              }
             }
           }
-        }
-        if(Object.values(data.chapters).filter(entries=>entries?.length).length<item.chapters)missing.push(item.code)
-        else checked++
-      }catch{missing.push(item.code)}
+          if(Object.values(data.chapters).filter(entries=>entries?.length).length<item.chapters)missing.push(item.code)
+          else checked++
+        }catch{missing.push(item.code)}
+        if(searchRun.current!==run)return
+        setSearchProgress(++progress)
+        await new Promise(resolve=>setTimeout(resolve,0))
+      }
       if(searchRun.current!==run)return
-      setSearchProgress(checked+missing.length)
-      await new Promise(resolve=>setTimeout(resolve,0))
+      groups.push({version,matches,total,checked,missing})
+      setSearchReport({query:rawQuery,groups:[...groups]})
     }
-    if(searchRun.current!==run)return
-    setSearchReport({version,query:search.trim(),matches,total,checked,missing})
-    setSearchBusy(false)
+    if(searchRun.current===run)setSearchBusy(false)
   }
   useEffect(()=>{if(tab!=='search')setSearchBusy(false)},[tab])
   const openSearchResult=(result,version)=>{
@@ -285,19 +291,21 @@ export default function App() {
     </section> : tab==='search' ? <section className="reader">
       <div className="reader-heading search-page-heading"><div><span className="eyebrow">{t.search}</span><h1>{t.searchTitle}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>
       <form onSubmit={runBibleSearch} style={{display:'grid',gap:10,marginBottom:16}}>
-        <label className="version-picker"><span>{lang==='ko'?'검색할 성경 역본':'ရှာဖွေမည့် ကျမ်းစာဘာသာပြန်'}</span><select value={searchVersion} disabled={searchBusy} onChange={e=>{setSearchVersion(e.target.value);setSearchReport(null)}}>{Object.entries(versionNames).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></label>
         <input className="search-input" placeholder={t.searchPlaceholder} value={search} disabled={searchBusy} onChange={e=>{setSearch(e.target.value);setSearchReport(null)}}/>
         <button className="menu-return-button" type="submit" disabled={searchBusy||!search.trim()} style={{justifyContent:'center',minHeight:44}}><Search size={18}/>{t.search}</button>
         <p style={{fontSize:12,color:'var(--muted)',lineHeight:1.6,margin:0}}>{lang==='ko'?'저장된 성경은 인터넷 없이 검색할 수 있습니다. 저장되지 않은 성경은 검색할 때 불러옵니다.':'သိမ်းထားသော ကျမ်းစာကို အင်တာနက်မလိုဘဲ ရှာနိုင်ပါသည်။ မသိမ်းရသေးသော ကျမ်းစာများကို ရှာဖွေစဉ် ဖွင့်ယူပါမည်။'}</p>
       </form>
-      {searchBusy&&<div className="sample-notice" role="status"><p>{lang==='ko'?'성경 본문 검색 중':'ကျမ်းစာတွင် ရှာဖွေနေသည်'} · {searchProgress}/66</p><progress value={searchProgress} max={66} style={{width:'100%'}}/><button type="button" className="menu-return-button" onClick={cancelSearch}>{lang==='ko'?'취소':'ပယ်ဖျက်ရန်'}</button></div>}
-      {!searchBusy&&searchReport&&searchReport.version===searchVersion&&<div>
-        <p role="status" style={{fontWeight:650}}>{lang==='ko'?'검색 결과':'ရှာဖွေမှုရလဒ်'} · {searchReport.total.toLocaleString()} {lang==='ko'?'구절':'ပိုဒ်'} <small style={{color:'var(--muted)'}}>({versionNames[searchReport.version]})</small></p>
-        {searchReport.missing.length>0&&<p className="sample-notice">{lang==='ko'?('66권 중 '+searchReport.checked+'권만 전체 검색했습니다. 불러오지 못한 성경이 있으므로 인터넷 연결 후 다시 검색하세요.'):('၆၆ အုပ်အနက် '+searchReport.checked+' အုပ်ကိုသာ အပြည့်အစုံ ရှာနိုင်ခဲ့ပါသည်။ အင်တာနက်ချိတ်ဆက်ပြီး ထပ်ရှာပါ။')}</p>}
-        {searchReport.total===0&&<p className="empty-state">{lang==='ko'?'일치하는 구절이 없습니다.':'ကိုက်ညီသော ကျမ်းပိုဒ် မတွေ့ပါ။'}</p>}
-        {searchReport.matches.slice(0,searchLimit).map(result=><button type="button" className="book-result" key={result.book.code+':'+result.chapter+':'+result.verse} onClick={()=>openSearchResult(result,searchReport.version)} style={{alignItems:'flex-start',textAlign:'start'}}><BookOpen size={18} style={{flexShrink:0}}/><span style={{minWidth:0,flex:1}}><strong>{localBookName(result.book)} {result.chapter}:{result.verse}</strong><small style={{display:'block',whiteSpace:'normal',overflow:'visible',textOverflow:'clip',lineHeight:1.7,marginTop:6}}>{result.text}</small></span><ChevronRight size={18} style={{flexShrink:0}}/></button>)}
-        {searchLimit<searchReport.matches.length&&<button type="button" className="menu-return-button" onClick={()=>setSearchLimit(n=>n+40)}>{lang==='ko'?'더 보기':'ပိုမိုကြည့်ရန်'}</button>}
-        {searchReport.total>searchReport.matches.length&&<p className="sample-notice">{lang==='ko'?'최대 500개 결과를 표시합니다. 더 구체적인 단어 또는 문구로 검색하세요.':'ရလဒ် ၅၀၀ အထိ ပြသထားသည်။ ပိုတိကျသော စကားလုံးဖြင့် ထပ်ရှာပါ။'}</p>}
+      {searchBusy&&<div className="sample-notice" role="status"><p>{lang==='ko'?'성경 본문 검색 중':'ကျမ်းစာတွင် ရှာဖွေနေသည်'} · {searchProgress}/264</p><progress value={searchProgress} max={264} style={{width:'100%'}}/><button type="button" className="menu-return-button" onClick={cancelSearch}>{lang==='ko'?'취소':'ပယ်ဖျက်ရန်'}</button></div>}
+      {searchReport&&<div>
+        <p role="status" style={{fontWeight:650}}>{lang==='ko'?'검색 결과':'ရှာဖွေမှုရလဒ်'} · {searchReport.groups.reduce((n,g)=>n+g.total,0).toLocaleString()} {lang==='ko'?'건':'ခု'} <small style={{color:'var(--muted)'}}>({searchReport.groups.length}/4 {lang==='ko'?'역본 검색':'ဘာသာပြန် ရှာပြီး'})</small></p>
+        {searchReport.groups.filter(g=>g.missing.length>0).map(g=><p key={g.version} className="sample-notice">{versionNames[g.version]} · {lang==='ko'?('66권 중 '+g.checked+'권 전체 검색. 일부 성경을 불러오지 못했습니다.'):('၆၆ အုပ်အနက် '+g.checked+' အုပ်ကိုသာ အပြည့်အစုံ ရှာနိုင်ခဲ့ပါသည်။')}</p>)}
+        {!searchBusy&&searchReport.groups.every(g=>g.total===0)&&<p className="empty-state">{lang==='ko'?'일치하는 구절이 없습니다.':'ကိုက်ညီသော ကျမ်းပိုဒ် မတွေ့ပါ။'}</p>}
+        {searchReport.groups.filter(g=>g.total>0).map(group=><section key={group.version} style={{marginBottom:20}}>
+          <h2 style={{fontSize:15,margin:'12px 0',lineHeight:1.5}}>{versionNames[group.version]} <small style={{color:'var(--muted)',fontWeight:400}}>· {group.total.toLocaleString()} {lang==='ko'?'구절':'ပိုဒ်'}</small></h2>
+          {group.matches.slice(0,searchLimits[group.version]||20).map(result=><button type="button" className="book-result" key={group.version+':'+result.book.code+':'+result.chapter+':'+result.verse} onClick={()=>openSearchResult(result,group.version)} style={{alignItems:'flex-start',textAlign:'start'}}><BookOpen size={18} style={{flexShrink:0}}/><span style={{minWidth:0,flex:1}}><strong>{localBookName(result.book)} {result.chapter}:{result.verse}</strong><small style={{display:'block',whiteSpace:'normal',overflow:'visible',textOverflow:'clip',lineHeight:1.7,marginTop:6}}>{result.text}</small></span><ChevronRight size={18} style={{flexShrink:0}}/></button>)}
+          {(searchLimits[group.version]||20)<group.matches.length&&<button type="button" className="menu-return-button" onClick={()=>setSearchLimits(prev=>({...prev,[group.version]:(prev[group.version]||20)+20}))}>{lang==='ko'?'더 보기':'ပိုမိုကြည့်ရန်'}</button>}
+          {group.total>group.matches.length&&<p className="sample-notice">{lang==='ko'?'이 역본은 최대 500개 결과를 표시합니다. 더 구체적인 문구로 검색하세요.':'ဤဘာသာပြန်အတွက် ရလဒ် ၅၀၀ အထိ ပြသထားသည်။ ပိုတိကျသော စကားလုံးဖြင့် ထပ်ရှာပါ။'}</p>}
+        </section>)}
       </div>}
     </section> : tab==='saved' ? <section className="reader"><div className="menu-page-heading"><div><span className="menu-eyebrow">{lang==='ko'?'내 말씀':'ကျွန်ုပ်၏ကျမ်းစာ'}</span><h1>{lang==='ko'?'저장한 구절':'သိမ်းထားသောကျမ်းပိုဒ်'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>{bookmarks.length===0?<p className="empty-state">{lang==='ko'?'아직 저장한 구절이 없습니다. 본문 오른쪽 북마크를 눌러 저장하세요.':'သိမ်းထားသောကျမ်းပိုဒ် မရှိသေးပါ။'}</p>:bookmarks.map(x=><button className="book-result" key={x.key} onClick={()=>{const b=books.find(y=>y.code===x.book);if(b){setBook(b);setChapter(x.chapter);setSelectedVerse(x.verse);setHasSelectedVerse(true);setTab('read')}}}><Bookmark/><span>{books.find(b=>b.code===x.book)?localBookName(books.find(b=>b.code===x.book)):x.bookName} {x.chapter}:{x.verse}<small>{x.text}</small></span><ChevronRight/></button>)}</section> : tab==='history' ? <section className="reader"><div className="menu-page-heading"><div><span className="menu-eyebrow">{lang==='ko'?'읽기 기록':'ဖတ်ရှုမှုမှတ်တမ်း'}</span><h1>{lang==='ko'?'최근 읽은 말씀':'ဖတ်ရှုခဲ့သောမှတ်တမ်း'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>{history.length===0?<p className="empty-state">{lang==='ko'?'읽은 기록이 없습니다.':'မှတ်တမ်းမရှိသေးပါ။'}</p>:history.map((x,i)=><button className="book-result" key={x.book+':'+x.chapter} onClick={()=>{const b=books.find(y=>y.code===x.book);if(b){setBook(b);setChapter(x.chapter);setTab('read')}}}><CalendarDays/><span>{books.find(b=>b.code===x.book)?localBookName(books.find(b=>b.code===x.book)):x.bookName} {x.chapter}{lang==='ko'?'장':'အခန်း'}<small>{lang==='ko'?'최근 읽은 장':'နောက်ဆုံးဖတ်ရှုခဲ့သောအခန်း'}</small></span><ChevronRight/></button>)}</section> : <section className="reader options-page"><div className="menu-page-heading options-page-title"><div><span className="menu-eyebrow">{lang==='ko'?'읽기 환경':'ဖတ်ရှုမှုအပြင်အဆင်'}</span><h1>{lang==='ko'?'옵션':'ရွေးချယ်စရာများ'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div><div className="options-card"><div className="options-card-top"><div className="options-icon"><Type size={20}/></div><div><div className="options-section-title">{lang==='ko'?'본문 글자 크기':'ကျမ်းစာစာလုံးအရွယ်အစား'}</div><p>{lang==='ko'?'눈에 편한 크기로 조절하세요.':'သက်တောင့်သက်သာ ဖတ်နိုင်သော အရွယ်ကို ရွေးပါ။'}</p></div></div><div className="font-size-controls"><button aria-label="글자 작게" onClick={()=>changeFont(Math.max(9,fontSize-1))}>A−</button><div className="font-size-current"><strong>{fontSize}</strong><small>pt</small></div><button aria-label="글자 크게" onClick={()=>changeFont(Math.min(32,fontSize+1))}>A+</button><button className="font-reset" onClick={()=>changeFont(11)}>{lang==='ko'?'기본값':'ပုံမှန်'}</button></div><div className="font-preview-label">{lang==='ko'?'글자 크기 미리보기':'စာလုံးအရွယ် နမူနာ'}</div><div className="font-preview" style={{fontSize:`${fontSize}pt`}}><span className="font-preview-verse">1</span>{lang==='ko'?'태초에 하나님이 천지를 창조하시니라.':'အစအဦး၌ ဘုရားသခင်သည် ကောင်းကင်နှင့် မြေကြီးကို ဖန်ဆင်းတော်မူ၏။'}</div><p className="font-preview-caption">{lang==='ko'?'실제 성경 본문에 적용되는 크기입니다.':'ကျမ်းစာဖတ်ရှုရာတွင် ဤအရွယ်အစားကို အသုံးပြုမည်။'}</p></div><div className="options-group"><div className="options-group-heading">{lang==='ko'?'오프라인 성경':'အင်တာနက်မလိုသော ကျမ်းစာ'}</div>
   <div style={{padding:'11px 15px 16px',display:'grid',gap:13}}>
