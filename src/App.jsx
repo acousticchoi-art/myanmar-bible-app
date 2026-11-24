@@ -24,6 +24,80 @@ const copy = {
 }
 const burmeseBookNames={GEN:'ကမ္ဘာဦး',EXO:'ထွက်မြောက်ရာ',LEV:'ဝတ်ပြုရာ',NUM:'တောလည်ရာ',DEU:'တရားဟောရာ',JOS:'ယောရှု',JDG:'တရားသူကြီး',RUT:'ရုသ', '1SA':'ဓမ္မရာဇဝင် ပထမ', '2SA':'ဓမ္မရာဇဝင် ဒုတိယ','1KI':'ဓမ္မရာဇဝင် တတိယ','2KI':'ဓမ္မရာဇဝင် စတုတ္ထ','1CH':'ရာဇဝင်ချုပ် ပထမ','2CH':'ရာဇဝင်ချုပ် ဒုတိယ',EZR:'ဧဇရ',NEH:'နေဟမိ',EST:'ဧသတာ',JOB:'ယောဘ',PSA:'ဆာလံ',PRO:'သုတ္တံ',ECC:'ဒေသနာ',SNG:'ရှောလမုန်သီချင်း',ISA:'ဟေရှာယ',JER:'ယေရမိ',LAM:'မြည်တမ်းစကား',EZK:'ယေဇကျေလ',DAN:'ဒံယေလ',HOS:'ဟောရှေ',JOL:'ယောလ',AMO:'အာမုတ်',OBA:'ဩဗဒိ',JON:'ယောန',MIC:'မိက္ခာ',NAM:'နာဟုံ',HAB:'ဟဗက္ကု',ZEP:'ဇေဖနိ',HAG:'ဟဂ္ဂဲ',ZEC:'ဇာခရိ',MAL:'မာလခိ',MAT:'မဿဲ',MRK:'မာကု',LUK:'လုကာ',JHN:'ယောဟန်',ACT:'တမန်တော်',ROM:'ရောမ', '1CO':'ကောရိန္သု ပထမ','2CO':'ကောရိန္သု ဒုတိယ',GAL:'ဂလာတိ',EPH:'ဧဖက်',PHP:'ဖိလိပ္ပိ',COL:'ကောလောသဲ', '1TH':'သက်သာလောနိတ် ပထမ','2TH':'သက်သာလောနိတ် ဒုတိယ','1TI':'တိမောသေ ပထမ','2TI':'တိမောသေ ဒုတိယ',TIT:'တိတု',PHM:'ဖိလေမုန်',HEB:'ဟေဗြဲ',JAS:'ယာကုပ်','1PE':'ပေတရု ပထမ','2PE':'ပေတရု ဒုတိယ','1JN':'ယောဟန် ပထမ','2JN':'ယောဟန် ဒုတိယ','3JN':'ယောဟန် တတိယ',JUD:'ယုဒ',REV:'ဗျာဒိတ်'}
 const navIcons = [BookOpen, Search, Bookmark, CalendarDays]
+const strongsBase='https://raw.githubusercontent.com/GabeBrPierce/bible-interlinear/master/'
+const strongsCacheName='kyanza-original-language-v1'
+async function getOriginalJson(path,valid){
+  const url=strongsBase+path
+  let cache
+  try{
+    if('caches' in window){
+      cache=await caches.open(strongsCacheName)
+      const cached=await cache.match(url)
+      if(cached){const data=await cached.json();if(valid(data))return data}
+    }
+  }catch{}
+  const controller=new AbortController()
+  const timeout=setTimeout(()=>controller.abort(),18000)
+  try{
+    const response=await fetch(url,{signal:controller.signal})
+    if(!response.ok)throw new Error('Original-language data unavailable')
+    const copy=response.clone(),data=await response.json()
+    if(!valid(data))throw new Error('Invalid original-language data')
+    try{await cache?.put(url,copy)}catch{}
+    return data
+  }finally{clearTimeout(timeout)}
+}
+const strongsCodes=value=>[...new Set(String(value||'').match(/[HG]\d{1,5}[A-Z]?/g)||[])]
+const baseStrongCode=value=>value.replace(/^([HG])0+(?=\d)/,'$1')
+function OriginalLanguageDialog({target,lang,onClose}){
+  const ko=lang==='ko'
+  const [verse,setVerse]=useState(target.verses[0])
+  const [data,setData]=useState(null)
+  const [status,setStatus]=useState('loading')
+  const [attempt,setAttempt]=useState(0)
+  const [code,setCode]=useState('')
+  const [entry,setEntry]=useState(null)
+  const [entryStatus,setEntryStatus]=useState('')
+  const [entryAttempt,setEntryAttempt]=useState(0)
+  useEffect(()=>{
+    let active=true
+    setData(null);setStatus('loading');setCode('');setEntry(null);setEntryStatus('')
+    getOriginalJson(target.code+'/'+target.chapter+'/'+verse+'.json',d=>d?.book===target.code&&Number(d.chapter)===target.chapter&&Number(d.verse)===verse&&Array.isArray(d.words)&&d.words.length>0)
+      .then(d=>{if(active){setData(d);setStatus('ready')}})
+      .catch(()=>{if(active)setStatus('error')})
+    return()=>{active=false}
+  },[target.code,target.chapter,verse,attempt])
+  useEffect(()=>{
+    if(!code)return
+    let active=true
+    setEntry(null);setEntryStatus('loading')
+    getOriginalJson('lexicon/'+code+'.json',d=>d?.strongs===code&&typeof d.word==='string')
+      .then(d=>{if(active){setEntry(d);setEntryStatus('ready')}})
+      .catch(()=>{if(active)setEntryStatus('error')})
+    return()=>{active=false}
+  },[code,entryAttempt])
+  const buttonStyle={border:'1px solid var(--line)',borderRadius:9,background:'var(--surface2)',color:'var(--text)',font:'inherit',padding:'9px 12px',cursor:'pointer'}
+  return <div role="presentation" onClick={onClose} style={{position:'fixed',inset:0,zIndex:115,background:'rgba(20,24,30,.58)',display:'flex',alignItems:'center',justifyContent:'center',padding:12}}>
+    <div role="dialog" aria-modal="true" aria-label={ko?'원어 분석':'မူရင်းကျမ်းစာ လေ့လာရန်'} onClick={e=>e.stopPropagation()} style={{width:'min(100%,540px)',maxHeight:'88dvh',overflowY:'auto',background:'var(--surface)',color:'var(--text)',borderRadius:18,padding:16,display:'flex',flexDirection:'column',gap:12}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}><strong>{ko?'원어 분석':'မူရင်းကျမ်းစာ လေ့လာရန်'} · {target.name} {target.chapter}:{verse}</strong><button type="button" onClick={onClose} aria-label={ko?'닫기':'ပိတ်ရန်'} style={{...buttonStyle,padding:5}}><X size={20}/></button></div>
+      {target.verses.length>1&&<label className="version-picker"><span>{ko?'분석할 절':'လေ့လာမည့် ကျမ်းပိုဒ်'}</span><select value={verse} onChange={e=>{setData(null);setCode('');setEntry(null);setVerse(Number(e.target.value))}}>{target.verses.map(v=><option key={v} value={v}>{v} {ko?'절':'ပိုဒ်'}</option>)}</select></label>}
+      <p style={{fontSize:12,lineHeight:1.65,margin:0,color:'var(--muted)'}}>{ko?'번역본과 별도로 원문 단어를 표시합니다. 스트롱 코드를 누르면 사전이 열립니다. 원문과 번역본의 절 번호는 일부 다를 수 있습니다.':'ဘာသာပြန်ကျမ်းစာနှင့် သီးခြား မူရင်းစကားလုံးများကို ပြထားပါသည်။ Strong နံပါတ်ကို နှိပ်၍ အဘိဓာန်ကို ကြည့်ပါ။ အချို့ ကျမ်းပိုဒ်နံပါတ်များ ကွာခြားနိုင်ပါသည်။'}</p>
+      {status==='loading'&&<p role="status">{ko?'원어 데이터를 불러오는 중…':'မူရင်းကျမ်းစာ ဖွင့်နေသည်…'}</p>}
+      {status==='error'&&<div className="sample-notice"><p>{ko?'원어 자료를 불러오지 못했습니다. 인터넷 연결 또는 원문 자료의 제공 여부를 확인해 주세요.':'မူရင်းကျမ်းစာ ဖွင့်၍မရပါ။ အင်တာနက်နှင့် အချက်အလက်ကို စစ်ဆေးပါ။'}</p><button type="button" style={buttonStyle} onClick={()=>setAttempt(n=>n+1)}>{ko?'다시 시도':'ထပ်မံကြိုးစားရန်'}</button></div>}
+      {entryStatus&&<div style={{border:'1px solid var(--line)',borderRadius:12,background:'var(--bg)',padding:12,display:'grid',gap:8}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><strong>{ko?'스트롱 사전':'Strong အဘိဓာန်'} · {baseStrongCode(code)}</strong><button type="button" aria-label={ko?'사전 닫기':'အဘိဓာန် ပိတ်ရန်'} onClick={()=>{setCode('');setEntry(null);setEntryStatus('')}} style={{...buttonStyle,padding:4}}><X size={16}/></button></div>
+        {entryStatus==='loading'&&<span role="status">{ko?'사전 불러오는 중…':'အဘိဓာန် ဖွင့်နေသည်…'}</span>}
+        {entryStatus==='error'&&<><p style={{margin:0,fontSize:13}}>{ko?'이 코드의 사전 자료를 불러오지 못했습니다.':'ဤနံပါတ်အတွက် အဘိဓာန် အချက်အလက် မရပါ။'}</p><button type="button" style={buttonStyle} onClick={()=>setEntryAttempt(n=>n+1)}>{ko?'다시 시도':'ထပ်မံကြိုးစားရန်'}</button></>}
+        {entry&&<><strong dir="auto" style={{fontSize:22}}>{entry.word}</strong><span>{entry.translit}</span><span style={{fontSize:12,color:'var(--muted)'}}>{entry.morph}</span><strong>{entry.gloss}</strong><small style={{color:'var(--muted)'}}>{ko?'영어 원문 사전 정의':'အင်္ဂလိပ် အဘိဓာန် အဓိပ္ပာယ်'}</small><div style={{fontSize:13,whiteSpace:'pre-wrap',overflowWrap:'anywhere',lineHeight:1.65}}>{entry.definition}</div></>}
+      </div>}
+      {data&&<div style={{display:'grid',gap:7}}>{data.words.map((word,i)=><div key={i} style={{border:'1px solid var(--line)',borderRadius:10,padding:11,display:'grid',gap:5}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,flexWrap:'wrap'}}><strong dir="auto" style={{fontSize:20}}>{word.original}</strong><div style={{display:'flex',gap:5,flexWrap:'wrap'}}>{strongsCodes(word.strongs).map(id=><button key={id} type="button" onClick={()=>{setCode(id);setEntry(null);setEntryStatus('loading');setEntryAttempt(n=>n+1)}} style={{...buttonStyle,padding:'5px 8px',fontSize:12,color:'#377ac5',fontWeight:700}}>{baseStrongCode(id)}</button>)}</div></div>
+        <span style={{fontSize:13,color:'var(--muted)'}}>{word.translit}</span><span style={{fontSize:14}}>{word.gloss}</span><small style={{fontSize:11,color:'var(--muted)'}}>{ko?'문법':'သဒ္ဒါ'}: {word.morph}</small>
+      </div>)}</div>}
+      <p style={{fontSize:11,color:'var(--muted)',lineHeight:1.6,margin:0}}>Source: <a href="https://www.STEPBible.org" target="_blank" rel="noreferrer">STEPBible.org</a>, Tyndale House, Cambridge (TAGNT / TAHOT, lexicon). <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>. <a href="https://github.com/GabeBrPierce/bible-interlinear" target="_blank" rel="noreferrer">JSON conversion</a>; formatted for Kyanza. {ko?'조회한 자료는 기기에 임시 저장됩니다.':'ကြည့်ရှုထားသော အချက်အလက်များကို စက်တွင် ယာယီသိမ်းထားပါသည်။'}</p>
+    </div>
+  </div>
+}
 const getLastReading = () => {
   try {
     const saved = JSON.parse(localStorage.getItem('bible-last-reading') || 'null')
@@ -63,6 +137,7 @@ export default function App() {
   const [quoteData,setQuoteData]=useState(null)
   const [quoteLoading,setQuoteLoading]=useState(false)
   const [quoteError,setQuoteError]=useState(false)
+  const [originalTarget,setOriginalTarget]=useState(null)
   const versionNames={my:'Judson Burmese',kjv:'King James Version (KJV)',niv:'New International Version (NIV)',ko:'개역개정'}
   useEffect(()=>{
     if(!('serviceWorker' in navigator)||!('caches' in window))return
@@ -144,6 +219,16 @@ export default function App() {
   const findVerseEntry=(n)=>chapterVerses.find(v=>{const [start,endRaw]=String(v.number).split('-').map(Number);const end=endRaw??start;const target=Number(n);return String(v.number)===String(n)||(Number.isFinite(target)&&target>=start&&target<=end)})
   const getVerseText=(n)=>findVerseEntry(n)?.text||''
   const canonicalVerseNumber=(n)=>findVerseEntry(n)?.number??n
+  const openOriginalLanguage=()=>{
+    const picked=copySelection.length?copySelection:[selectedVerse]
+    const verses=[...new Set(picked.flatMap(value=>{
+      const [first,last]=String(value).split('-').map(Number)
+      if(!Number.isInteger(first)||first<1)return []
+      const end=Number.isInteger(last)&&last>=first&&last-first<200?last:first
+      return Array.from({length:end-first+1},(_,i)=>first+i)
+    }))].sort((a,b)=>a-b)
+    if(verses.length)setOriginalTarget({code:book.code,name:bookTitle,chapter,verses})
+  }
   const isVerseSelected=(n)=>hasSelectedVerse&&copySelection.includes(String(n))
   const getSecondaryText=(n,i)=>{const [start,end]=String(n).split('-').map(Number);const range=secondaryChapterVerses.find(v=>{const p=String(v.number).split('-').map(Number);return p.length>1&&start>=p[0]&&start<=p[1]});if(range)return start===Number(String(range.number).split('-')[0])?range.text:'';const matched=secondaryChapterVerses.filter(v=>{const [a,bRaw]=String(v.number).split('-').map(Number);const b=bRaw??a;return b>=start&&a<= (end||start)});return matched.length?matched.map(v=>v.text).join(' '):(secondaryVerses[i]||'')}
   const secondaryChapterVerses=(secondaryVersion==='my'?secondaryBurmeseBook:secondaryVersion==='kjv'?secondaryKjvBook:secondaryVersion==='niv'?secondaryNivBook:secondaryKoreanBook)?.chapters?.[chapter]||[]
@@ -335,9 +420,10 @@ export default function App() {
       <div className="scripture-card" style={{'--bible-font-size':`${fontSize}pt`,'--bible-secondary-font-size':`${Math.max(9,fontSize-1)}pt`}}><div className="scripture-meta"><span>{bookTitle} · {chapter}</span><span className="version-tag">{versionNames[primaryVersion]}</span></div>{(bibleLoading?[]:verses).map((v,i)=>{const verseNo=verseNumbers[i]??i+1;return <div key={i} id={`verse-${String(verseNo).split('-')[0]}`} className={`verse ${isVerseSelected(verseNo)?'verse-selected':''} ${copySelection.includes(String(verseNo))?'verse-copy-selected':''} ${compare?'verse-comparison':''}`} onClick={()=>{if(copyMode){setCopySelection(s=>s.includes(String(verseNo))?s.filter(x=>x!==String(verseNo)):[...s,String(verseNo)]);return}const next=copySelection.includes(String(verseNo))?copySelection.filter(x=>x!==String(verseNo)):[...copySelection,String(verseNo)];setCopySelection(next);setHasSelectedVerse(next.length>0);setSelectedVerse(next.length?next[next.length-1]:verseNo)}}><span className="verse-num">{verseNo}</span><div className="verse-texts"><p className={compare?'verse-primary':''} style={{fontSize:`${fontSize}pt`}}><span className={marked.includes(passageKey(verseNo))?'verse-ink-highlight':''}>{v}</span></p>{compare&&<p className="verse-secondary" style={{fontSize:`${Math.max(9,fontSize-1)}pt`}}><span className={marked.includes(passageKey(verseNo))?'verse-ink-highlight':''}>{getSecondaryText(verseNo,i)}</span></p>}{notesForVerses([verseNo]).length>0&&<button type="button" className="verse-note-indicator" title={lang==='ko'?'메모 목록':'မှတ်စုများ'} onClick={e=>{e.stopPropagation();openNotesFor([verseNo])}}><NotebookPen size={13}/><span>{lang==='ko'?'메모':'မှတ်စု'} {notesForVerses([verseNo]).length}{notesForVerses([verseNo]).length===1&&notesForVerses([verseNo])[0].verses.length>1?` · ${notesForVerses([verseNo])[0].verses.join(', ')}`:''}</span></button>}</div><button className={bookmarks.some(x=>x.key===passageKey(verseNo))?'verse-bookmark active':'verse-bookmark'} onClick={e=>{e.stopPropagation();toggleBookmark(verseNo)}} aria-label="북마크"><Bookmark size={16} fill={bookmarks.some(x=>x.key===passageKey(verseNo))?'currentColor':'none'}/></button></div>})}{bibleLoading&&<div className="sample-notice">{lang==='ko'?'미얀마어 성경을 불러오는 중입니다…':'ကျမ်းစာကို ဖွင့်နေသည်…'}</div>}{bibleError&&<div className="sample-notice">{bibleError}</div>}</div>
       {copyMode&&<div className="copy-selection-bar"><span>{lang==='ko'?`${copySelection.length}절 선택됨`:`${copySelection.length} ပိုဒ် ရွေးထားသည်`}</span><button onClick={()=>setCopySelection(verseNumbers.map(n=>String(n)))}>{lang==='ko'?'전체 선택':'အားလုံးရွေး'}</button><button onClick={()=>setCopySelection([])}>{lang==='ko'?'선택 해제':'ရွေးချယ်မှုရှင်း'}</button><button className="copy-selection-primary" disabled={!copySelection.length} onClick={()=>setShowCopyModal(true)}>{lang==='ko'?'복사':'ကူးယူရန်'}</button><button className="copy-selection-close" onClick={()=>{setCopyMode(false);setCopySelection([])}} aria-label="close">×</button></div>}{hasSelectedVerse&&!copyMode&&<div className="selected-verse-action" style={{flexDirection:'column',alignItems:'stretch',gap:7,padding:'9px 12px',bottom:'calc(62px + env(safe-area-inset-bottom) + 10px)'}}>
         <div className="selected-verse-label"><strong style={{overflow:'hidden',textOverflow:'ellipsis'}}>{bookTitle} {chapter}:{copySelection.length>1?copySelection.join(', '):selectedVerse}</strong></div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:7}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:6}}>
           <button type="button" onClick={toggleSelectedHighlights} aria-label={lang==='ko'?'형광펜':'အရောင်ခြယ်'} style={{minWidth:0,minHeight:39,border:'1px solid var(--line)',borderRadius:10,background:copySelection.every(n=>marked.includes(book.code+':'+chapter+':'+canonicalVerseNumber(n)))?'#fff1b8':'var(--surface2)',color:'var(--text)',font:'inherit',fontSize:12,fontWeight:650,display:'flex',alignItems:'center',justifyContent:'center',gap:5}}><Highlighter size={16}/><span>{lang==='ko'?'형광펜':'အရောင်ခြယ်'}</span></button>
           <button type="button" onClick={openNote} aria-label={lang==='ko'?'메모':'မှတ်စု'} style={{minWidth:0,minHeight:39,border:'1px solid var(--line)',borderRadius:10,background:'var(--surface2)',color:'var(--text)',font:'inherit',fontSize:12,fontWeight:650,display:'flex',alignItems:'center',justifyContent:'center',gap:5}}><NotebookPen size={16}/><span>{lang==='ko'?'메모':'မှတ်စု'}</span></button>
+          <button type="button" onClick={openOriginalLanguage} aria-label={lang==='ko'?'원어 분석':'မူရင်းကျမ်းစာ လေ့လာရန်'} style={{minWidth:0,minHeight:39,border:'1px solid var(--line)',borderRadius:10,background:'var(--surface2)',color:'var(--text)',font:'inherit',fontSize:12,fontWeight:650,display:'flex',alignItems:'center',justifyContent:'center',gap:4}}><Languages size={15}/><span>{lang==='ko'?'원어':'မူရင်း'}</span></button>
           <button type="button" onClick={()=>setShowCopyModal(true)} aria-label={lang==='ko'?'복사':'ကူးယူရန်'} style={{minWidth:0,minHeight:39,border:0,borderRadius:10,background:'#435d7c',color:'#fff',font:'inherit',fontSize:12,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',gap:5}}><Copy size={16}/><span>{lang==='ko'?'복사':'ကူးယူရန်'}</span></button>
         </div>
       </div>}{tab==='read'&&showScrollTop&&!hasSelectedVerse&&!copyMode&&<button className="scroll-to-top" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} aria-label={lang==='ko'?'맨 위로 이동':'အပေါ်ဆုံးသို့ သွားရန်'} title={lang==='ko'?'맨 위로':'အပေါ်ဆုံး'}><ChevronDown size={20}/></button>}
@@ -425,5 +511,5 @@ export default function App() {
         </div>
         <div className="navigator-current"><strong>{localBookName(quotePicker.book)} {quotePicker.chapter}{chosenQuoteEntries.length?':'+chosenQuoteEntries.map(v=>v.number).join(', '):lang==='ko'?'장':' အခန်း'}</strong><button type="button" disabled={quoteLoading||!chosenQuoteEntries.length} style={{opacity:(quoteLoading||!chosenQuoteEntries.length)?0.45:1}} onClick={insertQuote}>{lang==='ko'?'구절 삽입':'ကျမ်းပိုဒ် ထည့်ရန်'}</button></div>
       </div>
-    </div>}{copyToast&&<div className="copy-toast">{copyToast}</div>}  </main>
+    </div>}{originalTarget&&<OriginalLanguageDialog target={originalTarget} lang={lang} onClose={()=>setOriginalTarget(null)}/>}{copyToast&&<div className="copy-toast">{copyToast}</div>}  </main>
 }
