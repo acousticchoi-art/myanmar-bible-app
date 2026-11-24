@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { books, loadBurmeseBook, loadKJVBook, loadNIVBook } from './data/burmeseBible'
 import { getSavedBibleCodes } from './data/offlineBible'
 import { loadKoreanBook } from './data/koreanBible'
@@ -19,8 +19,8 @@ const koSampleVerses = [
   '하나님은 빛이 좋은 것을 보시고 빛과 어둠을 나누셨습니다.'
 ]
 const copy = {
-  my: { brand:'သမ္မာကျမ်းစာ', tagline:'နေ့စဉ် နှုတ်ကပတ်တော်', search:'ရှာဖွေရန်', readEyebrow:'သမ္မာကျမ်းစာ ဖတ်ရှုရန်', readTitle:'ကျမ်းစာဖတ်ရန်', font:'စာလုံး', chapter:'အခန်း', sample:'နမူနာစာသား', notice:'ဤစာသားများသည် UI စမ်းသပ်ရန်အတွက်သာ ဖြစ်သည်။ တရားဝင်ကျမ်းစာမူကို ခွင့်ပြုချက်ရရှိပြီးမှ ထည့်သွင်းပါမည်။', save:'သိမ်းရန်', highlight:'အရောင်ခြယ်', note:'မှတ်စု', share:'မျှဝေရန်', today:'ယနေ့ ဖတ်ရှုမှု', minutes:'၅ / ၂၀ မိနစ်', searchTitle:'ကျမ်းစာရှာဖွေမှု', searchPlaceholder:'ကျမ်းစာအုပ် ရှာရန်...', library:'သင့်စာကြည့်တိုက်', soon:'မကြာမီ ရရှိနိုင်ပါမည်', soonText:'ဤအပိုင်းကို နောက်အဆင့်တွင် ဆက်လက်တည်ဆောက်ပါမည်။', choose:'ကျမ်းစာအုပ် ရွေးချယ်ရန်', personalNote:'ကိုယ်ပိုင်မှတ်စု', writeNote:'သင့်ရဲ့ အတွေးအမြင်ကို ရေးသားပါ...', keep:'သိမ်းဆည်းရန်', tabs:['ကျမ်းစာ','ရှာဖွေရန်','သိမ်းဆည်း','မှတ်တမ်း'] },
-  ko: { brand:'미얀마 성경', tagline:'매일 만나는 하나님의 말씀', search:'검색', readEyebrow:'말씀 읽기', readTitle:'성경 읽기', font:'글자 크기', chapter:'장', sample:'샘플 본문', notice:'이 문구는 화면 테스트용 샘플입니다. 정식 성경 본문은 사용 허가를 받은 후 반영합니다.', save:'북마크', highlight:'하이라이트', note:'메모', share:'공유', today:'오늘의 읽기', minutes:'5 / 20분', searchTitle:'성경 검색', searchPlaceholder:'성경 이름 검색...', library:'내 성경 보관함', soon:'곧 제공됩니다', soonText:'이 기능은 다음 개발 단계에서 추가할 예정입니다.', choose:'성경 선택', personalNote:'나의 묵상 메모', writeNote:'말씀을 읽으며 떠오른 생각을 적어보세요...', keep:'저장하기', tabs:['성경','검색','북마크','히스토리'] }
+  my: { brand:'သမ္မာကျမ်းစာ', tagline:'နေ့စဉ် နှုတ်ကပတ်တော်', search:'ရှာဖွေရန်', readEyebrow:'သမ္မာကျမ်းစာ ဖတ်ရှုရန်', readTitle:'ကျမ်းစာဖတ်ရန်', font:'စာလုံး', chapter:'အခန်း', sample:'နမူနာစာသား', notice:'ဤစာသားများသည် UI စမ်းသပ်ရန်အတွက်သာ ဖြစ်သည်။ တရားဝင်ကျမ်းစာမူကို ခွင့်ပြုချက်ရရှိပြီးမှ ထည့်သွင်းပါမည်။', save:'သိမ်းရန်', highlight:'အရောင်ခြယ်', note:'မှတ်စု', share:'မျှဝေရန်', today:'ယနေ့ ဖတ်ရှုမှု', minutes:'၅ / ၂၀ မိနစ်', searchTitle:'ကျမ်းစာရှာဖွေမှု', searchPlaceholder:'စကားလုံး သို့မဟုတ် စာပိုဒ် ရှာရန်...', library:'သင့်စာကြည့်တိုက်', soon:'မကြာမီ ရရှိနိုင်ပါမည်', soonText:'ဤအပိုင်းကို နောက်အဆင့်တွင် ဆက်လက်တည်ဆောက်ပါမည်။', choose:'ကျမ်းစာအုပ် ရွေးချယ်ရန်', personalNote:'ကိုယ်ပိုင်မှတ်စု', writeNote:'သင့်ရဲ့ အတွေးအမြင်ကို ရေးသားပါ...', keep:'သိမ်းဆည်းရန်', tabs:['ကျမ်းစာ','ရှာဖွေရန်','သိမ်းဆည်း','မှတ်တမ်း'] },
+  ko: { brand:'미얀마 성경', tagline:'매일 만나는 하나님의 말씀', search:'검색', readEyebrow:'말씀 읽기', readTitle:'성경 읽기', font:'글자 크기', chapter:'장', sample:'샘플 본문', notice:'이 문구는 화면 테스트용 샘플입니다. 정식 성경 본문은 사용 허가를 받은 후 반영합니다.', save:'북마크', highlight:'하이라이트', note:'메모', share:'공유', today:'오늘의 읽기', minutes:'5 / 20분', searchTitle:'성경 검색', searchPlaceholder:'성경 본문 단어 또는 문구 검색...', library:'내 성경 보관함', soon:'곧 제공됩니다', soonText:'이 기능은 다음 개발 단계에서 추가할 예정입니다.', choose:'성경 선택', personalNote:'나의 묵상 메모', writeNote:'말씀을 읽으며 떠오른 생각을 적어보세요...', keep:'저장하기', tabs:['성경','검색','북마크','히스토리'] }
 }
 const burmeseBookNames={GEN:'ကမ္ဘာဦး',EXO:'ထွက်မြောက်ရာ',LEV:'ဝတ်ပြုရာ',NUM:'တောလည်ရာ',DEU:'တရားဟောရာ',JOS:'ယောရှု',JDG:'တရားသူကြီး',RUT:'ရုသ', '1SA':'ဓမ္မရာဇဝင် ပထမ', '2SA':'ဓမ္မရာဇဝင် ဒုတိယ','1KI':'ဓမ္မရာဇဝင် တတိယ','2KI':'ဓမ္မရာဇဝင် စတုတ္ထ','1CH':'ရာဇဝင်ချုပ် ပထမ','2CH':'ရာဇဝင်ချုပ် ဒုတိယ',EZR:'ဧဇရ',NEH:'နေဟမိ',EST:'ဧသတာ',JOB:'ယောဘ',PSA:'ဆာလံ',PRO:'သုတ္တံ',ECC:'ဒေသနာ',SNG:'ရှောလမုန်သီချင်း',ISA:'ဟေရှာယ',JER:'ယေရမိ',LAM:'မြည်တမ်းစကား',EZK:'ယေဇကျေလ',DAN:'ဒံယေလ',HOS:'ဟောရှေ',JOL:'ယောလ',AMO:'အာမုတ်',OBA:'ဩဗဒိ',JON:'ယောန',MIC:'မိက္ခာ',NAM:'နာဟုံ',HAB:'ဟဗက္ကု',ZEP:'ဇေဖနိ',HAG:'ဟဂ္ဂဲ',ZEC:'ဇာခရိ',MAL:'မာလခိ',MAT:'မဿဲ',MRK:'မာကု',LUK:'လုကာ',JHN:'ယောဟန်',ACT:'တမန်တော်',ROM:'ရောမ', '1CO':'ကောရိန္သု ပထမ','2CO':'ကောရိန္သု ဒုတိယ',GAL:'ဂလာတိ',EPH:'ဧဖက်',PHP:'ဖိလိပ္ပိ',COL:'ကောလောသဲ', '1TH':'သက်သာလောနိတ် ပထမ','2TH':'သက်သာလောနိတ် ဒုတိယ','1TI':'တိမောသေ ပထမ','2TI':'တိမောသေ ဒုတိယ',TIT:'တိတု',PHM:'ဖိလေမုန်',HEB:'ဟေဗြဲ',JAS:'ယာကုပ်','1PE':'ပေတရု ပထမ','2PE':'ပေတရု ဒုတိယ','1JN':'ယောဟန် ပထမ','2JN':'ယောဟန် ဒုတိယ','3JN':'ယောဟန် တတိယ',JUD:'ယုဒ',REV:'ဗျာဒိတ်'}
 const navIcons = [BookOpen, Search, Bookmark, CalendarDays]
@@ -51,6 +51,13 @@ export default function App() {
   const [secondaryVersion,setSecondaryVersion]=useState(()=>['my','kjv','niv','ko'].includes(localStorage.getItem('bible-secondary-version'))?localStorage.getItem('bible-secondary-version'):'niv')
   const t=copy[lang]
   const [tab,setTab]=useState('read'), [book,setBook]=useState(()=>getLastReading().book), [chapter,setChapter]=useState(()=>getLastReading().chapter), [fontSize,setFontSize]=useState(()=>Math.min(32,Math.max(9,Number(localStorage.getItem('bible-font-size')||11)||11))), [dark,setDark]=useState(false), [marked,setMarked]=useState(()=>JSON.parse(localStorage.getItem('bible-highlights')||'[]')), [selectedVerse,setSelectedVerse]=useState(()=>getLastReading().verse), [hasSelectedVerse,setHasSelectedVerse]=useState(false), [showScrollTop,setShowScrollTop]=useState(false), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [noteVerses,setNoteVerses]=useState([]), [noteEditVerses,setNoteEditVerses]=useState([]), [noteMode,setNoteMode]=useState('list'), [noteTarget,setNoteTarget]=useState(null), [verseNotes,setVerseNotes]=useState(()=>{try{const value=JSON.parse(localStorage.getItem('bible-verse-notes-v2')||'[]');return Array.isArray(value)?value:[]}catch{return []}}), [showBooks,setShowBooks]=useState(false), [showVersions,setShowVersions]=useState(false), [showNavigator,setShowNavigator]=useState(false), [navChapter,setNavChapter]=useState(1), [search,setSearch]=useState(''), [copyMode,setCopyMode]=useState(false), [copySelection,setCopySelection]=useState([]), [showCopyModal,setShowCopyModal]=useState(false), [copyVersions,setCopyVersions]=useState(['my','niv']), [copyToast,setCopyToast]=useState(''), [bookmarks,setBookmarks]=useState(()=>JSON.parse(localStorage.getItem('bible-bookmarks')||'[]')), [history,setHistory]=useState(()=>JSON.parse(localStorage.getItem('bible-history')||'[]'))
+  const [searchVersion,setSearchVersion]=useState(primaryVersion)
+  const [searchBusy,setSearchBusy]=useState(false)
+  const [searchProgress,setSearchProgress]=useState(0)
+  const [searchReport,setSearchReport]=useState(null)
+  const [searchLimit,setSearchLimit]=useState(40)
+  const [pendingSearchJump,setPendingSearchJump]=useState(null)
+  const searchRun=useRef(0)
   const versionNames={my:'Judson Burmese',kjv:'King James Version (KJV)',niv:'New International Version (NIV)',ko:'개역개정'}
   useEffect(()=>{
     if(!('serviceWorker' in navigator)||!('caches' in window))return
@@ -196,7 +203,65 @@ export default function App() {
   const shareVerse=async()=>{const text=bookTitle+' '+chapter+':'+selectedVerse+' '+getVerseText(selectedVerse);try{if(navigator.share)await navigator.share({text});else if(navigator.clipboard)await navigator.clipboard.writeText(text)}catch(e){}}
   const toggleBookmark=(n)=>setBookmarks(v=>{const verse=canonicalVerseNumber(n);const key=passageKey(verse);const next=v.some(x=>x.key===key)?v.filter(x=>x.key!==key):[...v,{key,book:book.code,bookName:bookTitle,chapter,verse,text:getVerseText(n)}];localStorage.setItem('bible-bookmarks',JSON.stringify(next));return next})
   const changeFont=(n)=>{setFontSize(n);localStorage.setItem('bible-font-size',String(n))}
-  const filtered=useMemo(()=>books.filter(b=>(b.en+' '+b.ko+' '+(burmeseBookNames[b.code]||'')+' '+b.code).toLowerCase().includes(search.toLowerCase())),[search])
+  const normalizeSearch=(value,version)=>{
+    const clean=String(value||'').normalize('NFC').toLowerCase().replace(/[\u200b-\u200d\ufeff]/g,'').trim()
+    return version==='my'||version==='ko'?clean.replace(/\s+/g,''):clean.replace(/\s+/g,' ')
+  }
+  useEffect(()=>{setSearchVersion(primaryVersion)},[primaryVersion])
+  useEffect(()=>()=>{searchRun.current++},[tab])
+  const cancelSearch=()=>{searchRun.current++;setSearchBusy(false);setSearchReport(null)}
+  const runBibleSearch=async event=>{
+    event.preventDefault()
+    const version=searchVersion,query=normalizeSearch(search,version)
+    if(!query||searchBusy)return
+    const run=++searchRun.current
+    setSearchBusy(true);setSearchProgress(0);setSearchReport(null);setSearchLimit(40)
+    const loader={my:loadBurmeseBook,ko:loadKoreanBook,kjv:loadKJVBook,niv:loadNIVBook}[version]
+    const matches=[];let total=0,checked=0
+    const missing=[]
+    for(const item of books){
+      if(searchRun.current!==run)return
+      try{
+        const data=await loader(item)
+        if(searchRun.current!==run)return
+        if(!data?.chapters?.[1]?.length)throw new Error('Missing Bible data')
+        for(const [chapterNumber,entries] of Object.entries(data.chapters)){
+          for(const verse of entries){
+            if(normalizeSearch(verse.text,version).includes(query)){
+              total++
+              if(matches.length<500)matches.push({book:item,chapter:Number(chapterNumber),verse:verse.number,text:verse.text})
+            }
+          }
+        }
+        if(Object.values(data.chapters).filter(entries=>entries?.length).length<item.chapters)missing.push(item.code)
+        else checked++
+      }catch{missing.push(item.code)}
+      if(searchRun.current!==run)return
+      setSearchProgress(checked+missing.length)
+      await new Promise(resolve=>setTimeout(resolve,0))
+    }
+    if(searchRun.current!==run)return
+    setSearchReport({version,query:search.trim(),matches,total,checked,missing})
+    setSearchBusy(false)
+  }
+  useEffect(()=>{if(tab!=='search')setSearchBusy(false)},[tab])
+  const openSearchResult=(result,version)=>{
+    setPendingSearchJump({code:result.book.code,chapter:result.chapter,verse:result.verse,version})
+    setCopySelection([]);setCopyMode(false);setHasSelectedVerse(false)
+    setVersion('primary',version);setBook(result.book);setChapter(result.chapter);setTab('read')
+  }
+  useEffect(()=>{
+    if(!pendingSearchJump||tab!=='read'||bibleLoading||primaryVersion!==pendingSearchJump.version||book.code!==pendingSearchJump.code||chapter!==pendingSearchJump.chapter)return
+    const data={my:burmeseBook,ko:koreanBook,kjv:kjvBook,niv:nivBook}[primaryVersion]
+    if(data?.bookCode!==book.code)return
+    const id='verse-'+String(pendingSearchJump.verse).split('-')[0]
+    const timer=requestAnimationFrame(()=>{
+      const element=document.getElementById(id)
+      if(element){setSelectedVerse(pendingSearchJump.verse);element.scrollIntoView({behavior:'smooth',block:'center'})}
+      setPendingSearchJump(null)
+    })
+    return()=>cancelAnimationFrame(timer)
+  },[pendingSearchJump,tab,bibleLoading,primaryVersion,book,chapter,burmeseBook,koreanBook,kjvBook,nivBook])
   const changeLang=(value)=>{setLang(value);localStorage.setItem('bible-language',value)}
   useEffect(()=>{localStorage.setItem('bible-last-reading',JSON.stringify({book:book.code,chapter,verse:selectedVerse}))},[book,chapter,selectedVerse])
   useEffect(()=>{const item={book:book.code,bookName:bookTitle,chapter};setHistory(v=>{const next=[item,...v.filter(x=>x.book!==item.book||x.chapter!==item.chapter)].slice(0,40);localStorage.setItem('bible-history',JSON.stringify(next));return next})},[book,chapter])
@@ -217,7 +282,24 @@ export default function App() {
       </div>}{tab==='read'&&showScrollTop&&!hasSelectedVerse&&!copyMode&&<button className="scroll-to-top" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} aria-label={lang==='ko'?'맨 위로 이동':'အပေါ်ဆုံးသို့ သွားရန်'} title={lang==='ko'?'맨 위로':'အပေါ်ဆုံး'}><ChevronDown size={20}/></button>}
       <div className="tools-row"><button onClick={()=>setSaved(!saved)} className={saved?'tool active':'tool'}><Bookmark/><span>{t.save}</span></button><button onClick={()=>toggleMark(selectedVerse)} className="tool"><Highlighter/><span>{t.highlight}</span></button><button onClick={openNote} className="tool"><NotebookPen/><span>{t.note}</span></button><button onClick={shareVerse} className="tool"><Share2/><span>{t.share}</span></button></div>
       <div className="reading-progress"><div><span>{t.today}</span><strong>{t.minutes}</strong></div><div className="progress"><i/></div></div>
-    </section> : tab==='search' ? <section className="reader"><div className="reader-heading search-page-heading"><div><span className="eyebrow">{t.search}</span><h1>{t.searchTitle}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div><input className="search-input" placeholder={t.searchPlaceholder} value={search} onChange={e=>setSearch(e.target.value)}/>{filtered.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setTab('read')}}><BookOpen/><span>{localBookName(b)}<small>{lang==='my'?b.en+' · ':''}{b.chapters} {t.chapter}</small></span><ChevronRight/></button>)}</section> : tab==='saved' ? <section className="reader"><div className="menu-page-heading"><div><span className="menu-eyebrow">{lang==='ko'?'내 말씀':'ကျွန်ုပ်၏ကျမ်းစာ'}</span><h1>{lang==='ko'?'저장한 구절':'သိမ်းထားသောကျမ်းပိုဒ်'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>{bookmarks.length===0?<p className="empty-state">{lang==='ko'?'아직 저장한 구절이 없습니다. 본문 오른쪽 북마크를 눌러 저장하세요.':'သိမ်းထားသောကျမ်းပိုဒ် မရှိသေးပါ။'}</p>:bookmarks.map(x=><button className="book-result" key={x.key} onClick={()=>{const b=books.find(y=>y.code===x.book);if(b){setBook(b);setChapter(x.chapter);setSelectedVerse(x.verse);setHasSelectedVerse(true);setTab('read')}}}><Bookmark/><span>{books.find(b=>b.code===x.book)?localBookName(books.find(b=>b.code===x.book)):x.bookName} {x.chapter}:{x.verse}<small>{x.text}</small></span><ChevronRight/></button>)}</section> : tab==='history' ? <section className="reader"><div className="menu-page-heading"><div><span className="menu-eyebrow">{lang==='ko'?'읽기 기록':'ဖတ်ရှုမှုမှတ်တမ်း'}</span><h1>{lang==='ko'?'최근 읽은 말씀':'ဖတ်ရှုခဲ့သောမှတ်တမ်း'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>{history.length===0?<p className="empty-state">{lang==='ko'?'읽은 기록이 없습니다.':'မှတ်တမ်းမရှိသေးပါ။'}</p>:history.map((x,i)=><button className="book-result" key={x.book+':'+x.chapter} onClick={()=>{const b=books.find(y=>y.code===x.book);if(b){setBook(b);setChapter(x.chapter);setTab('read')}}}><CalendarDays/><span>{books.find(b=>b.code===x.book)?localBookName(books.find(b=>b.code===x.book)):x.bookName} {x.chapter}{lang==='ko'?'장':'အခန်း'}<small>{lang==='ko'?'최근 읽은 장':'နောက်ဆုံးဖတ်ရှုခဲ့သောအခန်း'}</small></span><ChevronRight/></button>)}</section> : <section className="reader options-page"><div className="menu-page-heading options-page-title"><div><span className="menu-eyebrow">{lang==='ko'?'읽기 환경':'ဖတ်ရှုမှုအပြင်အဆင်'}</span><h1>{lang==='ko'?'옵션':'ရွေးချယ်စရာများ'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div><div className="options-card"><div className="options-card-top"><div className="options-icon"><Type size={20}/></div><div><div className="options-section-title">{lang==='ko'?'본문 글자 크기':'ကျမ်းစာစာလုံးအရွယ်အစား'}</div><p>{lang==='ko'?'눈에 편한 크기로 조절하세요.':'သက်တောင့်သက်သာ ဖတ်နိုင်သော အရွယ်ကို ရွေးပါ။'}</p></div></div><div className="font-size-controls"><button aria-label="글자 작게" onClick={()=>changeFont(Math.max(9,fontSize-1))}>A−</button><div className="font-size-current"><strong>{fontSize}</strong><small>pt</small></div><button aria-label="글자 크게" onClick={()=>changeFont(Math.min(32,fontSize+1))}>A+</button><button className="font-reset" onClick={()=>changeFont(11)}>{lang==='ko'?'기본값':'ပုံမှန်'}</button></div><div className="font-preview-label">{lang==='ko'?'글자 크기 미리보기':'စာလုံးအရွယ် နမူနာ'}</div><div className="font-preview" style={{fontSize:`${fontSize}pt`}}><span className="font-preview-verse">1</span>{lang==='ko'?'태초에 하나님이 천지를 창조하시니라.':'အစအဦး၌ ဘုရားသခင်သည် ကောင်းကင်နှင့် မြေကြီးကို ဖန်ဆင်းတော်မူ၏။'}</div><p className="font-preview-caption">{lang==='ko'?'실제 성경 본문에 적용되는 크기입니다.':'ကျမ်းစာဖတ်ရှုရာတွင် ဤအရွယ်အစားကို အသုံးပြုမည်။'}</p></div><div className="options-group"><div className="options-group-heading">{lang==='ko'?'오프라인 성경':'အင်တာနက်မလိုသော ကျမ်းစာ'}</div>
+    </section> : tab==='search' ? <section className="reader">
+      <div className="reader-heading search-page-heading"><div><span className="eyebrow">{t.search}</span><h1>{t.searchTitle}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>
+      <form onSubmit={runBibleSearch} style={{display:'grid',gap:10,marginBottom:16}}>
+        <label className="version-picker"><span>{lang==='ko'?'검색할 성경 역본':'ရှာဖွေမည့် ကျမ်းစာဘာသာပြန်'}</span><select value={searchVersion} disabled={searchBusy} onChange={e=>{setSearchVersion(e.target.value);setSearchReport(null)}}>{Object.entries(versionNames).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></label>
+        <input className="search-input" placeholder={t.searchPlaceholder} value={search} disabled={searchBusy} onChange={e=>{setSearch(e.target.value);setSearchReport(null)}}/>
+        <button className="menu-return-button" type="submit" disabled={searchBusy||!search.trim()} style={{justifyContent:'center',minHeight:44}}><Search size={18}/>{t.search}</button>
+        <p style={{fontSize:12,color:'var(--muted)',lineHeight:1.6,margin:0}}>{lang==='ko'?'저장된 성경은 인터넷 없이 검색할 수 있습니다. 저장되지 않은 성경은 검색할 때 불러옵니다.':'သိမ်းထားသော ကျမ်းစာကို အင်တာနက်မလိုဘဲ ရှာနိုင်ပါသည်။ မသိမ်းရသေးသော ကျမ်းစာများကို ရှာဖွေစဉ် ဖွင့်ယူပါမည်။'}</p>
+      </form>
+      {searchBusy&&<div className="sample-notice" role="status"><p>{lang==='ko'?'성경 본문 검색 중':'ကျမ်းစာတွင် ရှာဖွေနေသည်'} · {searchProgress}/66</p><progress value={searchProgress} max={66} style={{width:'100%'}}/><button type="button" className="menu-return-button" onClick={cancelSearch}>{lang==='ko'?'취소':'ပယ်ဖျက်ရန်'}</button></div>}
+      {!searchBusy&&searchReport&&searchReport.version===searchVersion&&<div>
+        <p role="status" style={{fontWeight:650}}>{lang==='ko'?'검색 결과':'ရှာဖွေမှုရလဒ်'} · {searchReport.total.toLocaleString()} {lang==='ko'?'구절':'ပိုဒ်'} <small style={{color:'var(--muted)'}}>({versionNames[searchReport.version]})</small></p>
+        {searchReport.missing.length>0&&<p className="sample-notice">{lang==='ko'?('66권 중 '+searchReport.checked+'권만 전체 검색했습니다. 불러오지 못한 성경이 있으므로 인터넷 연결 후 다시 검색하세요.'):('၆၆ အုပ်အနက် '+searchReport.checked+' အုပ်ကိုသာ အပြည့်အစုံ ရှာနိုင်ခဲ့ပါသည်။ အင်တာနက်ချိတ်ဆက်ပြီး ထပ်ရှာပါ။')}</p>}
+        {searchReport.total===0&&<p className="empty-state">{lang==='ko'?'일치하는 구절이 없습니다.':'ကိုက်ညီသော ကျမ်းပိုဒ် မတွေ့ပါ။'}</p>}
+        {searchReport.matches.slice(0,searchLimit).map(result=><button type="button" className="book-result" key={result.book.code+':'+result.chapter+':'+result.verse} onClick={()=>openSearchResult(result,searchReport.version)} style={{alignItems:'flex-start',textAlign:'start'}}><BookOpen size={18} style={{flexShrink:0}}/><span style={{minWidth:0,flex:1}}><strong>{localBookName(result.book)} {result.chapter}:{result.verse}</strong><small style={{display:'block',whiteSpace:'normal',overflow:'visible',textOverflow:'clip',lineHeight:1.7,marginTop:6}}>{result.text}</small></span><ChevronRight size={18} style={{flexShrink:0}}/></button>)}
+        {searchLimit<searchReport.matches.length&&<button type="button" className="menu-return-button" onClick={()=>setSearchLimit(n=>n+40)}>{lang==='ko'?'더 보기':'ပိုမိုကြည့်ရန်'}</button>}
+        {searchReport.total>searchReport.matches.length&&<p className="sample-notice">{lang==='ko'?'최대 500개 결과를 표시합니다. 더 구체적인 단어 또는 문구로 검색하세요.':'ရလဒ် ၅၀၀ အထိ ပြသထားသည်။ ပိုတိကျသော စကားလုံးဖြင့် ထပ်ရှာပါ။'}</p>}
+      </div>}
+    </section> : tab==='saved' ? <section className="reader"><div className="menu-page-heading"><div><span className="menu-eyebrow">{lang==='ko'?'내 말씀':'ကျွန်ုပ်၏ကျမ်းစာ'}</span><h1>{lang==='ko'?'저장한 구절':'သိမ်းထားသောကျမ်းပိုဒ်'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>{bookmarks.length===0?<p className="empty-state">{lang==='ko'?'아직 저장한 구절이 없습니다. 본문 오른쪽 북마크를 눌러 저장하세요.':'သိမ်းထားသောကျမ်းပိုဒ် မရှိသေးပါ။'}</p>:bookmarks.map(x=><button className="book-result" key={x.key} onClick={()=>{const b=books.find(y=>y.code===x.book);if(b){setBook(b);setChapter(x.chapter);setSelectedVerse(x.verse);setHasSelectedVerse(true);setTab('read')}}}><Bookmark/><span>{books.find(b=>b.code===x.book)?localBookName(books.find(b=>b.code===x.book)):x.bookName} {x.chapter}:{x.verse}<small>{x.text}</small></span><ChevronRight/></button>)}</section> : tab==='history' ? <section className="reader"><div className="menu-page-heading"><div><span className="menu-eyebrow">{lang==='ko'?'읽기 기록':'ဖတ်ရှုမှုမှတ်တမ်း'}</span><h1>{lang==='ko'?'최근 읽은 말씀':'ဖတ်ရှုခဲ့သောမှတ်တမ်း'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>{history.length===0?<p className="empty-state">{lang==='ko'?'읽은 기록이 없습니다.':'မှတ်တမ်းမရှိသေးပါ။'}</p>:history.map((x,i)=><button className="book-result" key={x.book+':'+x.chapter} onClick={()=>{const b=books.find(y=>y.code===x.book);if(b){setBook(b);setChapter(x.chapter);setTab('read')}}}><CalendarDays/><span>{books.find(b=>b.code===x.book)?localBookName(books.find(b=>b.code===x.book)):x.bookName} {x.chapter}{lang==='ko'?'장':'အခန်း'}<small>{lang==='ko'?'최근 읽은 장':'နောက်ဆုံးဖတ်ရှုခဲ့သောအခန်း'}</small></span><ChevronRight/></button>)}</section> : <section className="reader options-page"><div className="menu-page-heading options-page-title"><div><span className="menu-eyebrow">{lang==='ko'?'읽기 환경':'ဖတ်ရှုမှုအပြင်အဆင်'}</span><h1>{lang==='ko'?'옵션':'ရွေးချယ်စရာများ'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div><div className="options-card"><div className="options-card-top"><div className="options-icon"><Type size={20}/></div><div><div className="options-section-title">{lang==='ko'?'본문 글자 크기':'ကျမ်းစာစာလုံးအရွယ်အစား'}</div><p>{lang==='ko'?'눈에 편한 크기로 조절하세요.':'သက်တောင့်သက်သာ ဖတ်နိုင်သော အရွယ်ကို ရွေးပါ။'}</p></div></div><div className="font-size-controls"><button aria-label="글자 작게" onClick={()=>changeFont(Math.max(9,fontSize-1))}>A−</button><div className="font-size-current"><strong>{fontSize}</strong><small>pt</small></div><button aria-label="글자 크게" onClick={()=>changeFont(Math.min(32,fontSize+1))}>A+</button><button className="font-reset" onClick={()=>changeFont(11)}>{lang==='ko'?'기본값':'ပုံမှန်'}</button></div><div className="font-preview-label">{lang==='ko'?'글자 크기 미리보기':'စာလုံးအရွယ် နမူနာ'}</div><div className="font-preview" style={{fontSize:`${fontSize}pt`}}><span className="font-preview-verse">1</span>{lang==='ko'?'태초에 하나님이 천지를 창조하시니라.':'အစအဦး၌ ဘုရားသခင်သည် ကောင်းကင်နှင့် မြေကြီးကို ဖန်ဆင်းတော်မူ၏။'}</div><p className="font-preview-caption">{lang==='ko'?'실제 성경 본문에 적용되는 크기입니다.':'ကျမ်းစာဖတ်ရှုရာတွင် ဤအရွယ်အစားကို အသုံးပြုမည်။'}</p></div><div className="options-group"><div className="options-group-heading">{lang==='ko'?'오프라인 성경':'အင်တာနက်မလိုသော ကျမ်းစာ'}</div>
   <div style={{padding:'11px 15px 16px',display:'grid',gap:13}}>
     <div role="status" style={{fontSize:12,lineHeight:1.65,fontWeight:650,color:offlineAppReady?'#237847':'#a45c21'}}>{offlineAppReady?(lang==='ko'?'앱 첫 화면 오프라인 준비 완료':'အက်ပ်အော့ဖ်လိုင်း အသင့်ဖြစ်ပါပြီ'):(lang==='ko'?'앱 오프라인 실행 파일 확인 중 · 인터넷 연결 후 앱을 다시 열어 주세요.':'အင်တာနက်ချိတ်ဆက်ပြီး အက်ပ်ကို ပြန်ဖွင့်ပါ။')}</div>
     <p style={{margin:0,fontSize:12,color:'var(--muted)',lineHeight:1.6}}>{lang==='ko'?'원하는 역본을 기기에 저장하면 인터넷 없이 읽을 수 있습니다. Wi-Fi에서 처음 다운로드하는 것을 권장합니다.':'လိုချင်သော ကျမ်းစာဘာသာပြန်ကို ဖုန်းတွင် သိမ်းထားပြီး အင်တာနက်မရှိဘဲ ဖတ်နိုင်ပါသည်။ Wi-Fi ဖြင့် ဒေါင်းလုဒ်လုပ်ရန် အကြံပြုပါသည်။'}</p>
