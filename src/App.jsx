@@ -45,12 +45,38 @@ export default function App() {
   const [offlineCounts,setOfflineCounts]=useState({my:0,kjv:0,niv:0,ko:0})
   const [offlineDownloading,setOfflineDownloading]=useState(null)
   const [offlineError,setOfflineError]=useState({})
+  const [offlineAppReady,setOfflineAppReady]=useState(false)
   const [compare,setCompare]=useState(()=>localStorage.getItem('bible-compare') === 'true')
   const [primaryVersion,setPrimaryVersion]=useState(()=>['my','kjv','niv','ko'].includes(localStorage.getItem('bible-primary-version'))?localStorage.getItem('bible-primary-version'):'my')
   const [secondaryVersion,setSecondaryVersion]=useState(()=>['my','kjv','niv','ko'].includes(localStorage.getItem('bible-secondary-version'))?localStorage.getItem('bible-secondary-version'):'niv')
   const t=copy[lang]
   const [tab,setTab]=useState('read'), [book,setBook]=useState(()=>getLastReading().book), [chapter,setChapter]=useState(()=>getLastReading().chapter), [fontSize,setFontSize]=useState(()=>Math.min(32,Math.max(9,Number(localStorage.getItem('bible-font-size')||11)||11))), [dark,setDark]=useState(false), [marked,setMarked]=useState(()=>JSON.parse(localStorage.getItem('bible-highlights')||'[]')), [selectedVerse,setSelectedVerse]=useState(()=>getLastReading().verse), [hasSelectedVerse,setHasSelectedVerse]=useState(false), [showScrollTop,setShowScrollTop]=useState(false), [saved,setSaved]=useState(false), [note,setNote]=useState(''), [showNote,setShowNote]=useState(false), [noteVerses,setNoteVerses]=useState([]), [noteEditVerses,setNoteEditVerses]=useState([]), [noteMode,setNoteMode]=useState('list'), [noteTarget,setNoteTarget]=useState(null), [verseNotes,setVerseNotes]=useState(()=>{try{const value=JSON.parse(localStorage.getItem('bible-verse-notes-v2')||'[]');return Array.isArray(value)?value:[]}catch{return []}}), [showBooks,setShowBooks]=useState(false), [showVersions,setShowVersions]=useState(false), [showNavigator,setShowNavigator]=useState(false), [navChapter,setNavChapter]=useState(1), [search,setSearch]=useState(''), [copyMode,setCopyMode]=useState(false), [copySelection,setCopySelection]=useState([]), [showCopyModal,setShowCopyModal]=useState(false), [copyVersions,setCopyVersions]=useState(['my','niv']), [copyToast,setCopyToast]=useState(''), [bookmarks,setBookmarks]=useState(()=>JSON.parse(localStorage.getItem('bible-bookmarks')||'[]')), [history,setHistory]=useState(()=>JSON.parse(localStorage.getItem('bible-history')||'[]'))
   const versionNames={my:'Judson Burmese',kjv:'King James Version (KJV)',niv:'New International Version (NIV)',ko:'개역개정'}
+  useEffect(()=>{
+    if(!('serviceWorker' in navigator)||!('caches' in window))return
+    let active=true
+    const check=async()=>{
+      try{
+        const cacheNames=await caches.keys()
+        const shellNames=cacheNames.filter(name=>name.startsWith('kyanza-shell-'))
+        let ready=false
+        for(const name of shellNames){
+          const cache=await caches.open(name)
+          const appPage=await cache.match('/')
+          const requests=await cache.keys()
+          if(appPage&&requests.some(req=>new URL(req.url).pathname.startsWith('/assets/')&&new URL(req.url).pathname.endsWith('.js'))){
+            ready=true;break
+          }
+        }
+        if(active)setOfflineAppReady(ready)
+      }catch{if(active)setOfflineAppReady(false)}
+    }
+    check()
+    const controller=()=>check()
+    navigator.serviceWorker.addEventListener('controllerchange',controller)
+    navigator.serviceWorker.ready.then(check).catch(()=>{})
+    return()=>{active=false;navigator.serviceWorker.removeEventListener('controllerchange',controller)}
+  },[tab])
   const offlineVersions = [
     {id:'my',label:'Judson Burmese'},
     {id:'kjv',label:'King James Version (KJV)'},
@@ -192,6 +218,7 @@ export default function App() {
       <div className="reading-progress"><div><span>{t.today}</span><strong>{t.minutes}</strong></div><div className="progress"><i/></div></div>
     </section> : tab==='search' ? <section className="reader"><div className="reader-heading search-page-heading"><div><span className="eyebrow">{t.search}</span><h1>{t.searchTitle}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div><input className="search-input" placeholder={t.searchPlaceholder} value={search} onChange={e=>setSearch(e.target.value)}/>{filtered.map(b=><button className="book-result" key={b.en} onClick={()=>{setBook(b);setChapter(1);setTab('read')}}><BookOpen/><span>{lang==='ko'?b.ko:b.en}<small>{b.chapters} {t.chapter}</small></span><ChevronRight/></button>)}</section> : tab==='saved' ? <section className="reader"><div className="menu-page-heading"><div><span className="menu-eyebrow">{lang==='ko'?'내 말씀':'ကျွန်ုပ်၏ကျမ်းစာ'}</span><h1>{lang==='ko'?'저장한 구절':'သိမ်းထားသောကျမ်းပိုဒ်'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>{bookmarks.length===0?<p className="empty-state">{lang==='ko'?'아직 저장한 구절이 없습니다. 본문 오른쪽 북마크를 눌러 저장하세요.':'သိမ်းထားသောကျမ်းပိုဒ် မရှိသေးပါ။'}</p>:bookmarks.map(x=><button className="book-result" key={x.key} onClick={()=>{const b=books.find(y=>y.code===x.book);if(b){setBook(b);setChapter(x.chapter);setSelectedVerse(x.verse);setHasSelectedVerse(true);setTab('read')}}}><Bookmark/><span>{x.bookName} {x.chapter}:{x.verse}<small>{x.text}</small></span><ChevronRight/></button>)}</section> : tab==='history' ? <section className="reader"><div className="menu-page-heading"><div><span className="menu-eyebrow">{lang==='ko'?'읽기 기록':'ဖတ်ရှုမှုမှတ်တမ်း'}</span><h1>{lang==='ko'?'최근 읽은 말씀':'ဖတ်ရှုခဲ့သောမှတ်တမ်း'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div>{history.length===0?<p className="empty-state">{lang==='ko'?'읽은 기록이 없습니다.':'မှတ်တမ်းမရှိသေးပါ။'}</p>:history.map((x,i)=><button className="book-result" key={x.book+':'+x.chapter} onClick={()=>{const b=books.find(y=>y.code===x.book);if(b){setBook(b);setChapter(x.chapter);setTab('read')}}}><CalendarDays/><span>{x.bookName} {x.chapter}{lang==='ko'?'장':'အခန်း'}<small>{lang==='ko'?'최근 읽은 장':'နောက်ဆုံးဖတ်ရှုခဲ့သောအခန်း'}</small></span><ChevronRight/></button>)}</section> : <section className="reader options-page"><div className="menu-page-heading options-page-title"><div><span className="menu-eyebrow">{lang==='ko'?'읽기 환경':'ဖတ်ရှုမှုအပြင်အဆင်'}</span><h1>{lang==='ko'?'옵션':'ရွေးချယ်စရာများ'}</h1></div><button className="menu-return-button" onClick={()=>setTab('read')}><BookOpen size={17}/><span>{lang==='ko'?'성경으로 돌아가기':'ကျမ်းစာသို့ ပြန်သွားရန်'}</span></button></div><div className="options-card"><div className="options-card-top"><div className="options-icon"><Type size={20}/></div><div><div className="options-section-title">{lang==='ko'?'본문 글자 크기':'ကျမ်းစာစာလုံးအရွယ်အစား'}</div><p>{lang==='ko'?'눈에 편한 크기로 조절하세요.':'သက်တောင့်သက်သာ ဖတ်နိုင်သော အရွယ်ကို ရွေးပါ။'}</p></div></div><div className="font-size-controls"><button aria-label="글자 작게" onClick={()=>changeFont(Math.max(9,fontSize-1))}>A−</button><div className="font-size-current"><strong>{fontSize}</strong><small>pt</small></div><button aria-label="글자 크게" onClick={()=>changeFont(Math.min(32,fontSize+1))}>A+</button><button className="font-reset" onClick={()=>changeFont(11)}>{lang==='ko'?'기본값':'ပုံမှန်'}</button></div><div className="font-preview-label">{lang==='ko'?'글자 크기 미리보기':'စာလုံးအရွယ် နမူနာ'}</div><div className="font-preview" style={{fontSize:`${fontSize}pt`}}><span className="font-preview-verse">1</span>{lang==='ko'?'태초에 하나님이 천지를 창조하시니라.':'အစအဦး၌ ဘုရားသခင်သည် ကောင်းကင်နှင့် မြေကြီးကို ဖန်ဆင်းတော်မူ၏။'}</div><p className="font-preview-caption">{lang==='ko'?'실제 성경 본문에 적용되는 크기입니다.':'ကျမ်းစာဖတ်ရှုရာတွင် ဤအရွယ်အစားကို အသုံးပြုမည်။'}</p></div><div className="options-group"><div className="options-group-heading">{lang==='ko'?'오프라인 성경':'အင်တာနက်မလိုသော ကျမ်းစာ'}</div>
   <div style={{padding:'11px 15px 16px',display:'grid',gap:13}}>
+    <div role="status" style={{fontSize:12,lineHeight:1.65,fontWeight:650,color:offlineAppReady?'#237847':'#a45c21'}}>{offlineAppReady?(lang==='ko'?'앱 첫 화면 오프라인 준비 완료':'အက်ပ်အော့ဖ်လိုင်း အသင့်ဖြစ်ပါပြီ'):(lang==='ko'?'앱 오프라인 실행 파일 확인 중 · 인터넷 연결 후 앱을 다시 열어 주세요.':'အင်တာနက်ချိတ်ဆက်ပြီး အက်ပ်ကို ပြန်ဖွင့်ပါ။')}</div>
     <p style={{margin:0,fontSize:12,color:'var(--muted)',lineHeight:1.6}}>{lang==='ko'?'원하는 역본을 기기에 저장하면 인터넷 없이 읽을 수 있습니다. Wi-Fi에서 처음 다운로드하는 것을 권장합니다.':'လိုချင်သော ကျမ်းစာဘာသာပြန်ကို ဖုန်းတွင် သိမ်းထားပြီး အင်တာနက်မရှိဘဲ ဖတ်နိုင်ပါသည်။ Wi-Fi ဖြင့် ဒေါင်းလုဒ်လုပ်ရန် အကြံပြုပါသည်။'}</p>
     {offlineError.storage&&<p role="alert" style={{fontSize:12,color:'#b34949',margin:0}}>{offlineError.storage}</p>}
     {offlineVersions.map(item=><div key={item.id} style={{display:'grid',gap:8,padding:'12px 0',borderBottom:'1px solid var(--line)'}}>
