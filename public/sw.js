@@ -9,9 +9,9 @@ async function installShell(){
   const page = await fetch(new Request('/', { cache:'reload', credentials:'same-origin' }));
   if (!page.ok) throw new Error('App entry unavailable');
   const html = await page.clone().text();
-  const assetPaths = [...html.matchAll(/(?:src|href)\\s*=\\s*["'](\\/assets\\/[^"']+)["']/g)].map(match => match[1]);
-  const scripts = [...new Set(assetPaths.filter(path=>/\\.js(?:\\?|$)/.test(path)))];
-  const styles = [...new Set(assetPaths.filter(path=>/\\.css(?:\\?|$)/.test(path)))];
+  const assetPaths = [...html.matchAll(/(?:src|href)\s*=\s*["'](\/assets\/[^"']+)["']/g)].map(match => match[1]);
+  const scripts = [...new Set(assetPaths.filter(path=>/\.js(?:\?|$)/.test(path)))];
+  const styles = [...new Set(assetPaths.filter(path=>/\.css(?:\?|$)/.test(path)))];
   if (!scripts.length) throw new Error('Missing required application JavaScript');
   // Cache essential bundles before marking the offline shell as ready.
   for (const path of [...scripts, ...styles]) {
