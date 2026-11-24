@@ -549,7 +549,7 @@ export async function loadKJVBook(book, { requireOfflineSave = false } = {}) {
   }
   const allVerses = await kjvPromise;
   const chapters = {};
-  const prefix = book.en + " ";
+  const prefix = (book.code === "SNG" ? "Solomon's Song" : book.en) + " ";
   for (const [reference, rawText] of Object.entries(allVerses)) {
     if (!reference.startsWith(prefix)) continue;
     const match = reference.slice(prefix.length).match(/^(\d+):(\d+)$/);
