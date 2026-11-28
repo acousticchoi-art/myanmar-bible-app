@@ -133,6 +133,8 @@ export default function App() {
   const searchRun=useRef(0)
   const noteInputRef=useRef(null)
   const quoteRange=useRef({start:0,end:0})
+  const readerTouch=useRef(null)
+  const readerSwipeClick=useRef(0)
   const [quotePicker,setQuotePicker]=useState(null)
   const [quoteData,setQuoteData]=useState(null)
   const [quoteLoading,setQuoteLoading]=useState(false)
@@ -408,6 +410,56 @@ export default function App() {
     })
     return()=>cancelAnimationFrame(timer)
   },[pendingSearchJump,tab,bibleLoading,primaryVersion,book,chapter,burmeseBook,koreanBook,kjvBook,nivBook])
+  const moveReaderChapter=(direction)=>{
+    const index=books.findIndex(item=>item.code===book.code)
+    if(index<0)return false
+    let nextBook=book
+    let nextChapter=chapter+direction
+    if(nextChapter>book.chapters){
+      if(index===books.length-1)return false
+      nextBook=books[index+1];nextChapter=1
+    }else if(nextChapter<1){
+      if(index===0)return false
+      nextBook=books[index-1];nextChapter=nextBook.chapters
+    }
+    setPendingSearchJump(null)
+    setCopySelection([]);setCopyMode(false);setHasSelectedVerse(false);setSelectedVerse(1)
+    if(nextBook.code!==book.code)setBook(nextBook)
+    setChapter(nextChapter)
+    window.scrollTo({top:0,behavior:'instant'})
+    return true
+  }
+  const startReaderTouch=(event)=>{
+    readerSwipeClick.current=0
+    if(event.touches.length!==1||event.target.closest('button,input,select,textarea,a')){
+      readerTouch.current=null;return
+    }
+    const point=event.touches[0]
+    readerTouch.current={id:point.identifier,x:point.clientX,y:point.clientY}
+  }
+  const trackReaderTouch=(event)=>{
+    const start=readerTouch.current
+    if(!start)return
+    if(event.touches.length!==1){readerTouch.current=null;return}
+    const point=event.touches[0]
+    if(point.identifier!==start.id){readerTouch.current=null;return}
+    const dx=Math.abs(point.clientX-start.x),dy=Math.abs(point.clientY-start.y)
+    if(dy>24&&dy>=dx)readerTouch.current=null
+  }
+  const finishReaderTouch=(event)=>{
+    const start=readerTouch.current
+    readerTouch.current=null
+    if(!start||event.touches.length!==0)return
+    const point=Array.from(event.changedTouches).find(touch=>touch.identifier===start.id)
+    if(!point||window.getSelection()?.toString())return
+    const dx=point.clientX-start.x,dy=point.clientY-start.y
+    if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5)return
+    readerSwipeClick.current=Date.now()+400
+    moveReaderChapter(dx<0?1:-1)
+  }
+  const suppressReaderSwipeClick=(event)=>{
+    if(Date.now()<readerSwipeClick.current){event.preventDefault();event.stopPropagation();readerSwipeClick.current=0}
+  }
   const changeLang=(value)=>{setLang(value);localStorage.setItem('bible-language',value)}
   useEffect(()=>{localStorage.setItem('bible-last-reading',JSON.stringify({book:book.code,chapter,verse:selectedVerse}))},[book,chapter,selectedVerse])
   useEffect(()=>{const item={book:book.code,bookName:bookTitle,chapter};setHistory(v=>{const next=[item,...v.filter(x=>x.book!==item.book||x.chapter!==item.chapter)].slice(0,40);localStorage.setItem('bible-history',JSON.stringify(next));return next})},[book,chapter])
@@ -417,7 +469,7 @@ export default function App() {
     {tab==='read' ? <section className="reader">
       <div className="reader-heading reader-heading-hidden"><div><span className="eyebrow">{t.readEyebrow}</span><h1>{t.readTitle}</h1></div><div className="reader-actions"><button className={compare?'soft-btn compare-on':'soft-btn'} onClick={toggleCompare}><Columns2 size={16}/> {compare?(lang==='ko'?'함께 보기 중':'နှစ်ဘာသာ'): (lang==='ko'?'두 성경 함께 보기':'ဘာသာနှစ်မျိုး')}</button></div></div>
       <div className="version-selectors"><label className="version-picker"><span>{lang==='ko'?'첫 번째 번역본':'ပထမဘာသာပြန်'}</span><select value={primaryVersion} onChange={e=>setVersion('primary',e.target.value)}><option value="my">{versionNames.my}</option><option value="kjv">{versionNames.kjv}</option><option value="niv">{versionNames.niv}</option><option value="ko">{versionNames.ko}</option></select></label>{compare&&<label className="version-picker"><span>{lang==='ko'?'두 번째 번역본':'ဒုတိယဘာသာပြန်'}</span><select value={secondaryVersion} onChange={e=>setVersion('secondary',e.target.value)}><option value="my">{versionNames.my}</option><option value="kjv">{versionNames.kjv}</option><option value="niv">{versionNames.niv}</option><option value="ko">{versionNames.ko}</option></select></label>}</div><div className="selector-row"><button className="select-pill book-select" onClick={()=>setShowBooks(true)}>{bookTitle}<ChevronDown size={16}/></button><button className="select-pill" onClick={()=>setChapter(c=>Math.max(1,c-1))}><ChevronLeft size={15}/></button><span className="chapter-label">{chapter} <small>{t.chapter}</small></span><button className="select-pill" onClick={()=>setChapter(c=>Math.min(book.chapters,c+1))}><ChevronRight size={15}/></button></div>
-      <div className="scripture-card" style={{'--bible-font-size':`${fontSize}pt`,'--bible-secondary-font-size':`${Math.max(9,fontSize-1)}pt`}}><div className="scripture-meta"><span>{bookTitle} · {chapter}</span><span className="version-tag">{versionNames[primaryVersion]}</span></div>{(bibleLoading?[]:verses).map((v,i)=>{const verseNo=verseNumbers[i]??i+1;return <div key={i} id={`verse-${String(verseNo).split('-')[0]}`} className={`verse ${isVerseSelected(verseNo)?'verse-selected':''} ${copySelection.includes(String(verseNo))?'verse-copy-selected':''} ${compare?'verse-comparison':''}`} onClick={()=>{if(copyMode){setCopySelection(s=>s.includes(String(verseNo))?s.filter(x=>x!==String(verseNo)):[...s,String(verseNo)]);return}const next=copySelection.includes(String(verseNo))?copySelection.filter(x=>x!==String(verseNo)):[...copySelection,String(verseNo)];setCopySelection(next);setHasSelectedVerse(next.length>0);setSelectedVerse(next.length?next[next.length-1]:verseNo)}}><span className="verse-num">{verseNo}</span><div className="verse-texts"><p className={compare?'verse-primary':''} style={{fontSize:`${fontSize}pt`}}><span className={marked.includes(passageKey(verseNo))?'verse-ink-highlight':''}>{v}</span></p>{compare&&<p className="verse-secondary" style={{fontSize:`${Math.max(9,fontSize-1)}pt`}}><span className={marked.includes(passageKey(verseNo))?'verse-ink-highlight':''}>{getSecondaryText(verseNo,i)}</span></p>}{notesForVerses([verseNo]).length>0&&<button type="button" className="verse-note-indicator" title={lang==='ko'?'메모 목록':'မှတ်စုများ'} onClick={e=>{e.stopPropagation();openNotesFor([verseNo])}}><NotebookPen size={13}/><span>{lang==='ko'?'메모':'မှတ်စု'} {notesForVerses([verseNo]).length}{notesForVerses([verseNo]).length===1&&notesForVerses([verseNo])[0].verses.length>1?` · ${notesForVerses([verseNo])[0].verses.join(', ')}`:''}</span></button>}</div><button className={bookmarks.some(x=>x.key===passageKey(verseNo))?'verse-bookmark active':'verse-bookmark'} onClick={e=>{e.stopPropagation();toggleBookmark(verseNo)}} aria-label="북마크"><Bookmark size={16} fill={bookmarks.some(x=>x.key===passageKey(verseNo))?'currentColor':'none'}/></button></div>})}{bibleLoading&&<div className="sample-notice">{lang==='ko'?'미얀마어 성경을 불러오는 중입니다…':'ကျမ်းစာကို ဖွင့်နေသည်…'}</div>}{bibleError&&<div className="sample-notice">{bibleError}</div>}</div>
+      <div className="scripture-card" onTouchStart={startReaderTouch} onTouchMove={trackReaderTouch} onTouchEnd={finishReaderTouch} onTouchCancel={()=>{readerTouch.current=null}} onClickCapture={suppressReaderSwipeClick} style={{touchAction:'pan-y pinch-zoom','--bible-font-size':`${fontSize}pt`,'--bible-secondary-font-size':`${Math.max(9,fontSize-1)}pt`}}><div className="scripture-meta"><span>{bookTitle} · {chapter}</span><span className="version-tag">{versionNames[primaryVersion]}</span></div>{(bibleLoading?[]:verses).map((v,i)=>{const verseNo=verseNumbers[i]??i+1;return <div key={i} id={`verse-${String(verseNo).split('-')[0]}`} className={`verse ${isVerseSelected(verseNo)?'verse-selected':''} ${copySelection.includes(String(verseNo))?'verse-copy-selected':''} ${compare?'verse-comparison':''}`} onClick={()=>{if(copyMode){setCopySelection(s=>s.includes(String(verseNo))?s.filter(x=>x!==String(verseNo)):[...s,String(verseNo)]);return}const next=copySelection.includes(String(verseNo))?copySelection.filter(x=>x!==String(verseNo)):[...copySelection,String(verseNo)];setCopySelection(next);setHasSelectedVerse(next.length>0);setSelectedVerse(next.length?next[next.length-1]:verseNo)}}><span className="verse-num">{verseNo}</span><div className="verse-texts"><p className={compare?'verse-primary':''} style={{fontSize:`${fontSize}pt`}}><span className={marked.includes(passageKey(verseNo))?'verse-ink-highlight':''}>{v}</span></p>{compare&&<p className="verse-secondary" style={{fontSize:`${Math.max(9,fontSize-1)}pt`}}><span className={marked.includes(passageKey(verseNo))?'verse-ink-highlight':''}>{getSecondaryText(verseNo,i)}</span></p>}{notesForVerses([verseNo]).length>0&&<button type="button" className="verse-note-indicator" title={lang==='ko'?'메모 목록':'မှတ်စုများ'} onClick={e=>{e.stopPropagation();openNotesFor([verseNo])}}><NotebookPen size={13}/><span>{lang==='ko'?'메모':'မှတ်စု'} {notesForVerses([verseNo]).length}{notesForVerses([verseNo]).length===1&&notesForVerses([verseNo])[0].verses.length>1?` · ${notesForVerses([verseNo])[0].verses.join(', ')}`:''}</span></button>}</div><button className={bookmarks.some(x=>x.key===passageKey(verseNo))?'verse-bookmark active':'verse-bookmark'} onClick={e=>{e.stopPropagation();toggleBookmark(verseNo)}} aria-label="북마크"><Bookmark size={16} fill={bookmarks.some(x=>x.key===passageKey(verseNo))?'currentColor':'none'}/></button></div>})}{bibleLoading&&<div className="sample-notice">{lang==='ko'?'미얀마어 성경을 불러오는 중입니다…':'ကျမ်းစာကို ဖွင့်နေသည်…'}</div>}{bibleError&&<div className="sample-notice">{bibleError}</div>}</div>
       {copyMode&&<div className="copy-selection-bar"><span>{lang==='ko'?`${copySelection.length}절 선택됨`:`${copySelection.length} ပိုဒ် ရွေးထားသည်`}</span><button onClick={()=>setCopySelection(verseNumbers.map(n=>String(n)))}>{lang==='ko'?'전체 선택':'အားလုံးရွေး'}</button><button onClick={()=>setCopySelection([])}>{lang==='ko'?'선택 해제':'ရွေးချယ်မှုရှင်း'}</button><button className="copy-selection-primary" disabled={!copySelection.length} onClick={()=>setShowCopyModal(true)}>{lang==='ko'?'복사':'ကူးယူရန်'}</button><button className="copy-selection-close" onClick={()=>{setCopyMode(false);setCopySelection([])}} aria-label="close">×</button></div>}{hasSelectedVerse&&!copyMode&&<div className="selected-verse-action" style={{flexDirection:'column',alignItems:'stretch',gap:7,padding:'9px 12px',bottom:'calc(62px + env(safe-area-inset-bottom) + 10px)'}}>
         <div className="selected-verse-label"><strong style={{overflow:'hidden',textOverflow:'ellipsis'}}>{bookTitle} {chapter}:{copySelection.length>1?copySelection.join(', '):selectedVerse}</strong></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:6}}>
