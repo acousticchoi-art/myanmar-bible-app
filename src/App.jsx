@@ -348,6 +348,52 @@ export default function App() {
     const clean=String(value||'').normalize('NFC').toLowerCase().replace(/[\u200b-\u200d\ufeff]/g,'').trim()
     return version==='my'||version==='ko'?clean.replace(/\s+/g,''):clean.replace(/\s+/g,' ')
   }
+  const renderSearchHighlight=(value,rawQuery,version)=>{
+    const original=String(value||'')
+    const needle=normalizeSearch(rawQuery,version)
+    if(!needle)return original
+    const compact=version==='my'||version==='ko'
+    const chunks=typeof Intl.Segmenter==='function'
+      ? Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(original),part=>({text:part.segment,start:part.index}))
+      : Array.from(original.matchAll(/[\u1100-\u11ff]+|\P{M}\p{M}*|\p{M}+/gu),part=>({text:part[0],start:part.index}))
+    let normalized='',pendingSpace=null
+    const map=[]
+    const append=(part,range)=>{
+      normalized+=part
+      for(let i=0;i<part.length;i++)map.push(range)
+    }
+    for(const chunk of chunks){
+      const range=[chunk.start,chunk.start+chunk.text.length]
+      const clean=chunk.text.normalize('NFC').toLowerCase().replace(/[\u200b-\u200d\ufeff]/g,'')
+      for(const char of clean){
+        if(/\s/u.test(char)){
+          if(!compact&&normalized)pendingSpace=pendingSpace?[pendingSpace[0],range[1]]:range
+          continue
+        }
+        if(pendingSpace){append(' ',pendingSpace);pendingSpace=null}
+        append(char,range)
+      }
+    }
+    const ranges=[]
+    for(let from=0;;){
+      const index=normalized.indexOf(needle,from)
+      if(index<0)break
+      const start=map[index][0],end=map[index+needle.length-1][1]
+      const previous=ranges[ranges.length-1]
+      if(previous&&start<=previous[1])previous[1]=Math.max(previous[1],end)
+      else ranges.push([start,end])
+      from=index+needle.length
+    }
+    if(!ranges.length)return original
+    const parts=[];let offset=0
+    for(const [start,end] of ranges){
+      if(start>offset)parts.push(original.slice(offset,start))
+      parts.push(<mark key={start} style={{background:'#ffdb66',color:'#201600',fontWeight:800,borderRadius:3,boxDecorationBreak:'clone',WebkitBoxDecorationBreak:'clone'}}>{original.slice(start,end)}</mark>)
+      offset=end
+    }
+    if(offset<original.length)parts.push(original.slice(offset))
+    return parts
+  }
   useEffect(()=>()=>{searchRun.current++},[tab])
   const cancelSearch=()=>{searchRun.current++;setSearchBusy(false);setSearchReport(null)}
   const runBibleSearch=async event=>{
@@ -518,7 +564,7 @@ export default function App() {
         {!searchBusy&&searchReport.groups.every(g=>g.total===0)&&<p className="empty-state">{lang==='ko'?'일치하는 구절이 없습니다.':'ကိုက်ညီသော ကျမ်းပိုဒ် မတွေ့ပါ။'}</p>}
         {searchReport.groups.filter(g=>g.total>0).map(group=><section key={group.version} style={{marginBottom:20}}>
           <h2 style={{fontSize:15,margin:'12px 0',lineHeight:1.5}}>{versionNames[group.version]} <small style={{color:'var(--muted)',fontWeight:400}}>· {group.total.toLocaleString()} {lang==='ko'?'구절':'ပိုဒ်'}</small></h2>
-          {group.matches.slice(0,searchLimits[group.version]||20).map(result=><button type="button" className="book-result" key={group.version+':'+result.book.code+':'+result.chapter+':'+result.verse} onClick={()=>openSearchResult(result,group.version)} style={{alignItems:'flex-start',textAlign:'start'}}><BookOpen size={18} style={{flexShrink:0}}/><span style={{minWidth:0,flex:1}}><strong>{localBookName(result.book)} {result.chapter}:{result.verse}</strong><small style={{display:'block',whiteSpace:'normal',overflow:'visible',textOverflow:'clip',lineHeight:1.7,marginTop:6}}>{result.text}</small></span><ChevronRight size={18} style={{flexShrink:0}}/></button>)}
+          {group.matches.slice(0,searchLimits[group.version]||20).map(result=><button type="button" className="book-result" key={group.version+':'+result.book.code+':'+result.chapter+':'+result.verse} onClick={()=>openSearchResult(result,group.version)} style={{alignItems:'flex-start',textAlign:'start'}}><BookOpen size={18} style={{flexShrink:0}}/><span style={{minWidth:0,flex:1}}><strong>{localBookName(result.book)} {result.chapter}:{result.verse}</strong><small style={{display:'block',whiteSpace:'normal',overflow:'visible',textOverflow:'clip',lineHeight:1.7,marginTop:6}}>{renderSearchHighlight(result.text,searchReport.query,group.version)}</small></span><ChevronRight size={18} style={{flexShrink:0}}/></button>)}
           {(searchLimits[group.version]||20)<group.matches.length&&<button type="button" className="menu-return-button" onClick={()=>setSearchLimits(prev=>({...prev,[group.version]:(prev[group.version]||20)+20}))}>{lang==='ko'?'더 보기':'ပိုမိုကြည့်ရန်'}</button>}
           {group.total>group.matches.length&&<p className="sample-notice">{lang==='ko'?'이 역본은 최대 500개 결과를 표시합니다. 더 구체적인 문구로 검색하세요.':'ဤဘာသာပြန်အတွက် ရလဒ် ၅၀၀ အထိ ပြသထားသည်။ ပိုတိကျသော စကားလုံးဖြင့် ထပ်ရှာပါ။'}</p>}
         </section>)}
